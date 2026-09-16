@@ -21,12 +21,17 @@ describe("GitHub Pages privacy policy", () => {
     expect(appCopy).toContain("com.chippystoolbox.app");
   });
 
-  it("documents the public Pages URL on the docs landing page", () => {
+  it("documents the public Pages URL on the docs landing page and in README", () => {
     const index = read("docs/index.html");
+    const readme = read("README.md");
     expect(PUBLIC_PRIVACY_URL).toBe(
       "https://josh12891.github.io/chippys-toolbox/privacy.html",
     );
     expect(index).toContain(PUBLIC_PRIVACY_URL);
     expect(index).toContain("./privacy.html");
+    expect(readme).toContain(PUBLIC_PRIVACY_URL);
+    expect(readme).toContain("tradies_toolbox_setout_unlock");
+    expect(readme).toContain("Test and release");
+    expect(readme).toContain("License testing");
   });
 });
