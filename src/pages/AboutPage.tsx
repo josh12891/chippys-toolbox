@@ -5,7 +5,7 @@ export function AboutPage() {
   return (
     <AppShell title="About" subtitle="On-site set-out, on the device." back>
       <p className="text-base leading-relaxed text-muted">
-        The Chippy's Toolbox is an on-site set-out companion for Australian carpenters —
+        Tradies Toolbox is an on-site set-out companion for Australian trades —
         concrete volumes, stair geometry, running measurements and a 90° triangle.
         Everything runs on the device. There is no login and no live website wrap.
       </p>
@@ -23,7 +23,7 @@ export function PrivacyPage() {
   return (
     <AppShell title="Privacy" subtitle="Measurements stay on the device." back>
       <p className="text-base leading-relaxed text-muted">
-        The Chippy's Toolbox does not create accounts, and it does not send your
+        Tradies Toolbox does not create accounts, and it does not send your
         measurements to a server. Lengths, volumes and speech read-outs stay on the
         device.
       </p>

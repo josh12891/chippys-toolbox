@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "The Chippy's Toolbox — on-site set-out calculators for Australian trades.",
+  "description": "Tradies Toolbox — on-site set-out calculators for Australian trades.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

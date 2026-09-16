@@ -6,28 +6,24 @@ import { cn } from "@/lib/utils";
 const TOOLS = [
   {
     to: "/concrete" as const,
-    num: "01",
     title: "Concrete volume",
     copy: "Slabs, strip footings and piers. Height, width, depth — answer in m³ with a drawing.",
     icon: Layers,
   },
   {
     to: "/stairs" as const,
-    num: "02",
     title: "Stair set-out",
     copy: "Rise, going and landings to NCC Housing and AS 1657. Max 18 risers before a landing.",
     icon: StairsIcon,
   },
   {
     to: "/running" as const,
-    num: "03",
     title: "Running measurements",
     copy: "Equal centres for frames and balustrades. Play the marks while you tick the tape.",
     icon: Ruler,
   },
   {
     to: "/triangle" as const,
-    num: "04",
     title: "Triangle Calculator",
     copy: "Right-angle calculator. Enter sides or angles, tap Calculate, and the drawing fills in.",
     icon: TriangleIcon,
@@ -45,14 +41,14 @@ export function HomePage() {
           </p>
         </div>
         <h1 className="font-display text-4xl font-semibold leading-tight tracking-tight text-ink sm:text-5xl">
-          The Chippy's Toolbox
+          Tradies Toolbox
         </h1>
         <p className="mt-3 max-w-md text-base leading-normal text-muted">
           Concrete, stairs, running measurements and a 90° triangle — built for the tape, not the office.
         </p>
       </header>
 
-      <nav aria-label="Tools" className="flex flex-col gap-3">
+      <nav aria-label="Tools" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {TOOLS.map((tool) => (
           <Link
             key={tool.to}
@@ -66,14 +62,9 @@ export function HomePage() {
               <tool.icon className="size-6" />
             </div>
             <div className="min-w-0 flex-1 py-0.5">
-              <div className="flex items-baseline gap-2">
-                <span className="font-display text-xs font-semibold tracking-display text-muted">
-                  {tool.num}
-                </span>
-                <h2 className="font-display text-xl font-semibold text-ink">
-                  {tool.title}
-                </h2>
-              </div>
+              <h2 className="font-display text-xl font-semibold text-ink">
+                {tool.title}
+              </h2>
               <p className="mt-1 text-sm leading-snug text-muted">{tool.copy}</p>
             </div>
             <ArrowRight className="mt-4 size-5 shrink-0 text-subtle transition-transform duration-150 group-hover:translate-x-0.5" />

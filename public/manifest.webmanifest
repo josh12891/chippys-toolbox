@@ -1,6 +1,6 @@
 {
-  "name": "The Chippy's Toolbox",
-  "short_name": "Chippy's Toolbox",
+  "name": "Tradies Toolbox",
+  "short_name": "Tradies Toolbox",
   "description": "On-site set-out — concrete, stairs, running measurements and a 90° triangle.",
   "start_url": "./",
   "display": "standalone",

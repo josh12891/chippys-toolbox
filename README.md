@@ -1,4 +1,4 @@
-# The Chippy's Toolbox
+# Tradies Toolbox
 
 On-site set-out for Australian trades — **concrete, stairs, running measurements and a 90° triangle**, built for the tape, not the office.
 
@@ -6,15 +6,17 @@ This is a **Capacitor + Vite + React + TypeScript SPA**. All web assets are bund
 
 | | |
 | --- | --- |
-| Display name | The Chippy's Toolbox |
+| Display name | Tradies Toolbox |
 | Package / app ID | `com.chippystoolbox.app` |
 | npm name | `chippys-toolbox` |
-| Audience | Carpenters / chippies on Australian jobs |
+| Audience | Australian tradies on the job |
 
 ## Tools
 
+The four tools sit equally on the home screen (no carpenter-only ranking):
+
 1. **Concrete volume** — slabs (multi), strip footings and piers; mm or m; job total in m³; order quantity rounded up to 0.2 m³; diagrams.
-2. **Stair set-out** — NCC Housing and AS 1657; auto / manual tread / overall run; rise, going, 2R+G, pitch, landings; max 18 risers per flight; certifier disclaimer.
+2. **Stair set-out** — NCC Housing and AS 1657; auto / manual tread / overall run; rise, going, 2R+G, pitch, landings; max 18 risers per flight. NCC/AS figures are **soft on-site hints**, not a hard compliance stop; confirm with the certifier.
 3. **Running measurements** — ends vs between; members / spaces / max gap; centres, gaps and marks; **Play / Stop** speech read-out (`en-AU`).
 4. **Triangle calculator** — right angle from sides and/or angles; diagram; 3-4-5 (and 5-12-13) detect.
 
@@ -49,8 +51,8 @@ npx cap open android
 npx cap open ios
 ```
 
-- **appId:** `com.chippystoolbox.app`
-- **appName:** `The Chippy's Toolbox`
+- **appId:** `com.chippystoolbox.app` (kept; bundle-id rename later if needed)
+- **appName:** `Tradies Toolbox`
 - **webDir:** `dist` (see `capacitor.config.json`)
 - Platforms live in `android/` and `ios/` and are committed so store builds are reproducible.
 
@@ -69,7 +71,7 @@ Live reload against a packager is optional and **not** used for store binaries. 
 1. On macOS, `npm run cap:ios` (or open `ios/App/App.xcworkspace`).
 2. Select the **App** target. Bundle ID must stay `com.chippystoolbox.app`.
 3. Choose your development team under *Signing & Capabilities*.
-4. Display name: **The Chippy's Toolbox**.
+4. Display name: **Tradies Toolbox**.
 5. Archive and upload with Transporter / Organizer.
 
 iOS project files can be generated on Linux; **signing, Simulator and App Store upload require a Mac**.
@@ -77,13 +79,13 @@ iOS project files can be generated on Linux; **signing, Simulator and App Store 
 ## Store checklist
 
 - [ ] App icons and splash generated (`npm run assets`, then `npx cap sync`)
-- [ ] Display name **The Chippy's Toolbox** on both stores
+- [ ] Display name **Tradies Toolbox** on both stores
 - [ ] Privacy policy URL points at the in-app `/privacy` copy (or a hosted twin of `src/pages/AboutPage.tsx`)
 - [ ] Screenshots: home, concrete, stairs, running, triangle
 - [ ] Age rating: tools/reference, no user-generated content
 - [ ] Permissions: none required; speech uses OS TTS only
 - [ ] Offline: airplane-mode smoke test of all four tools
-- [ ] Stair disclaimer visible (NCC 2022 Housing Provisions 11.2 and AS 1657:2018)
+- [ ] Stair disclaimer visible (NCC 2022 Housing Provisions 11.2 and AS 1657:2018 — soft hints, not a certificate)
 - [ ] Signed Play AAB + App Store archive from the same `npm run build` commit
 
 ## Project layout
