@@ -89,9 +89,10 @@ iOS project files can be generated on Linux; **signing, Simulator and App Store 
 ## Project layout
 
 ```
-src/lib          concrete, stairs, running, triangle math
-src/pages        tool UIs, About, Privacy
-src/components   steppers, segmented controls, diagrams
+src/lib          concrete, stairs, running, triangle math (ported from prototype/)
+src/components   tool UIs and diagrams (ported from prototype/)
+src/pages        home, About, Privacy
+prototype/       exact Grok calculator source used as the port origin
 android/         Capacitor 7 Android project
 ios/             Capacitor 7 iOS project
 resources/       source icon + splash

@@ -9,7 +9,7 @@ import { TrianglePage } from './pages/TrianglePage.tsx'
 export default function App() {
   return (
     <HashRouter>
-      <div className="app-shell">
+      <div className="min-h-dvh pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/concrete" element={<ConcretePage />} />

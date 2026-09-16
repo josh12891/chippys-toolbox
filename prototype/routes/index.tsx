@@ -1,7 +1,9 @@
-import { Link } from "react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Layers, Ruler } from "lucide-react";
 import { BrandMark, StairsIcon, TriangleIcon } from "@/components/brand-mark";
 import { cn } from "@/lib/utils";
+
+export const Route = createFileRoute("/")({ component: Home });
 
 const TOOLS = [
   {
@@ -34,7 +36,7 @@ const TOOLS = [
   },
 ];
 
-export function HomePage() {
+function Home() {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-4 py-8 sm:px-6">
       <header className="mb-8">
@@ -84,14 +86,6 @@ export function HomePage() {
       <p className="mt-auto pt-10 text-xs leading-normal text-subtle">
         Stair limits follow NCC 2022 Housing Provisions 11.2 and AS 1657:2018.
         Confirm with the certifier on the job.
-      </p>
-      <p className="mt-3 flex gap-4 text-sm font-semibold">
-        <Link to="/about" className="text-primary">
-          About
-        </Link>
-        <Link to="/privacy" className="text-primary">
-          Privacy
-        </Link>
       </p>
     </div>
   );

@@ -1,51 +1,48 @@
 import { describe, expect, it } from 'vitest'
-import { planRunning } from './running.ts'
+import { computeRunning } from './running.ts'
 
 describe('running measurements', () => {
-  it('puts studs on the ends with equal gaps', () => {
-    const result = planRunning({
-      kind: 'studs',
-      mode: 'count',
-      overallMm: 2400,
-      memberWidthMm: 90,
+  it('puts members on the ends with equal gaps', () => {
+    const result = computeRunning({
+      overall: 2400,
+      member: 90,
+      layout: 'ends',
+      countMode: 'members',
       count: 5,
-      spaces: 4,
-      maxGapMm: 450,
+      maxGap: 450,
     })
-    expect(result.memberCount).toBe(5)
-    expect(result.spaceCount).toBe(4)
-    expect(result.startsMm[0]).toBe(0)
-    expect(result.startsMm.at(-1)).toBe(2310)
-    expect(result.gapMm).toBeCloseTo(487.5, 6)
-    expect(result.centreSpacingMm).toBeCloseTo(577.5, 6)
+    expect(result?.members).toBe(5)
+    expect(result?.spaces).toBe(4)
+    expect(result?.marks[0]?.left).toBe(0)
+    expect(result?.marks.at(-1)?.left).toBeCloseTo(2310, 6)
+    expect(result?.gap).toBeCloseTo(487.5, 6)
+    expect(result?.centres).toBeCloseTo(577.5, 6)
   })
 
-  it('spaces balusters between posts', () => {
-    const result = planRunning({
-      kind: 'balustrade',
-      mode: 'count',
-      overallMm: 1000,
-      memberWidthMm: 42,
+  it('spaces members between posts', () => {
+    const result = computeRunning({
+      overall: 1000,
+      member: 42,
+      layout: 'between',
+      countMode: 'members',
       count: 3,
-      spaces: 4,
-      maxGapMm: 125,
+      maxGap: 125,
     })
-    expect(result.spaceCount).toBe(4)
-    expect(result.gapMm).toBeCloseTo(218.5, 6)
-    expect(result.startsMm[0]).toBeCloseTo(218.5, 6)
+    expect(result?.spaces).toBe(4)
+    expect(result?.gap).toBeCloseTo(218.5, 6)
+    expect(result?.marks[0]?.left).toBeCloseTo(218.5, 6)
   })
 
   it('sizes a balustrade from a 125 mm max gap', () => {
-    const result = planRunning({
-      kind: 'balustrade',
-      mode: 'max-gap',
-      overallMm: 1000,
-      memberWidthMm: 42,
+    const result = computeRunning({
+      overall: 1000,
+      member: 42,
+      layout: 'between',
+      countMode: 'max',
       count: 0,
-      spaces: 0,
-      maxGapMm: 125,
+      maxGap: 125,
     })
-    expect(result.memberCount).toBeGreaterThan(0)
-    expect(result.gapMm).toBeLessThanOrEqual(125.05)
+    expect(result?.members).toBeGreaterThan(0)
+    expect(result?.gap).toBeLessThanOrEqual(125.05)
   })
 })
