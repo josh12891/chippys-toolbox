@@ -3,7 +3,7 @@ import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUnlock } from "@/components/unlock-provider";
-import { UNLOCK_PRICE_LABEL, UNLOCK_PRODUCT_ID } from "@/lib/unlock";
+import { UNLOCK_PRODUCT_ID } from "@/lib/unlock";
 
 export function UnlockGate({
   title,
@@ -18,8 +18,8 @@ export function UnlockGate({
 }
 
 function UnlockScreen({ toolTitle }: { toolTitle: string }) {
-  const { unlockOnThisDevice, restoreOnThisDevice } = useUnlock();
-  const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
+  const { purchaseUnlock, restorePurchases, priceLabel, busy, footnote } = useUnlock();
+  const [status, setStatus] = useState<string | null>(null);
 
   return (
     <AppShell
@@ -31,7 +31,7 @@ function UnlockScreen({ toolTitle }: { toolTitle: string }) {
         <CardHeader>
           <CardTitle>Unlock set-out</CardTitle>
           <CardDescription>
-            One-time {UNLOCK_PRICE_LABEL}. No ads. Works offline. Metric.
+            One-time {priceLabel}. No ads. Works offline. Metric.
           </CardDescription>
         </CardHeader>
         <ul className="mb-5 flex flex-col gap-1.5 text-sm text-ink">
@@ -47,29 +47,35 @@ function UnlockScreen({ toolTitle }: { toolTitle: string }) {
             type="button"
             size="lg"
             className="w-full"
-            onClick={unlockOnThisDevice}
+            disabled={busy}
+            onClick={() => {
+              void purchaseUnlock().then((result) => {
+                if (!result.cancelled) setStatus(result.message || null);
+              });
+            }}
           >
-            Unlock · {UNLOCK_PRICE_LABEL}
+            {busy ? "Working…" : `Unlock · ${priceLabel}`}
           </Button>
           <Button
             type="button"
             variant="outline"
             size="lg"
             className="w-full"
-            onClick={() => setRestoreMessage(restoreOnThisDevice().message)}
+            disabled={busy}
+            onClick={() => {
+              void restorePurchases().then((result) => setStatus(result.message));
+            }}
           >
             Restore purchases
           </Button>
         </div>
-        {restoreMessage ? (
+        {status ? (
           <p className="mt-3 text-sm text-muted" role="status">
-            {restoreMessage}
+            {status}
           </p>
         ) : null}
         <p className="mt-4 text-xs leading-normal text-subtle">
-          Store billing is not wired yet. This build sets a local unlock flag (
-          {UNLOCK_PRODUCT_ID}) so the paid tools can be reviewed on device. App
-          Store and Play Billing land in a follow-up.
+          {footnote} Product id {UNLOCK_PRODUCT_ID}.
         </p>
       </Card>
     </AppShell>

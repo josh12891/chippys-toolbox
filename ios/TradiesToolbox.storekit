@@ -1,0 +1,43 @@
+{
+  "identifier" : "A9C3E1B0-4D2F-4A71-9C18-7E5B2D91F044",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "C4E8A2D6-1B57-4F90-8C3E-6A1F9B247D80",
+      "localizations" : [
+        {
+          "description" : "Unlock stair set-out and concrete volume. One-time, no ads, works offline.",
+          "displayName" : "Set-out unlock",
+          "locale" : "en_AU"
+        },
+        {
+          "description" : "Unlock stair set-out and concrete volume. One-time, no ads, works offline.",
+          "displayName" : "Set-out unlock",
+          "locale" : "en"
+        }
+      ],
+      "productID" : "tradies_toolbox_setout_unlock",
+      "referenceName" : "Set-out unlock",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_AU",
+    "_storefront" : "AUS",
+    "_storeKitErrors" : [
+
+    ]
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
