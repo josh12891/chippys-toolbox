@@ -21,8 +21,11 @@ export function AboutPage() {
         the job.
       </p>
       <p className="mt-4 text-base leading-relaxed text-muted">
-        Tradies Toolbox is published by Joshua Pearson (Apple Individual). The public
-        privacy policy (also used for App Store / Play listings) is{" "}
+        Tradies Toolbox is published by Joshua Pearson (Apple Individual). Support:{" "}
+        <a href="mailto:josh@pearsonindustries.com.au" className="font-semibold text-primary">
+          josh@pearsonindustries.com.au
+        </a>
+        . The public privacy policy (also used for App Store / Play listings) is{" "}
         <a href="./privacy.html" className="font-semibold text-primary">
           privacy.html
         </a>

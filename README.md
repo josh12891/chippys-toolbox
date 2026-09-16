@@ -9,6 +9,7 @@ This is a **Capacitor + Vite + React + TypeScript SPA**. All web assets are bund
 | Display name | Tradies Toolbox |
 | Package / app ID | `com.chippystoolbox.app` |
 | Seller / publisher | Joshua Pearson (Apple Individual) |
+| Support email | josh@pearsonindustries.com.au |
 | npm name | `chippys-toolbox` |
 | Audience | Australian tradies on the job |
 
@@ -47,7 +48,7 @@ App Store Connect and Google Play need a **public https URL**. Host that file on
 1. Copy `public/privacy.html` to the Pages root (or enable Pages from the `/docs` folder and put the file at `docs/privacy.html`).
 2. Store privacy URL: `https://josh12891.github.io/chippys-toolbox/privacy.html`
 
-Replace the `SUPPORT_EMAIL` placeholder with a live contact address before you submit (address not locked yet).
+Support / store contact: **josh@pearsonindustries.com.au**.
 
 ## Requirements
 
@@ -108,7 +109,7 @@ iOS project files can be generated on Linux; **signing, Simulator and App Store 
 - [ ] App icons and splash generated (`npm run assets`, then `npx cap sync`)
 - [ ] Display name **Tradies Toolbox** on both stores
 - [ ] Seller / publisher **Joshua Pearson** (Apple Individual)
-- [ ] Privacy policy URL is the hosted `privacy.html` (e.g. `https://josh12891.github.io/chippys-toolbox/privacy.html`); leave `SUPPORT_EMAIL` until the address is set
+- [ ] Privacy policy URL is the hosted `privacy.html` (e.g. `https://josh12891.github.io/chippys-toolbox/privacy.html`); support email **josh@pearsonindustries.com.au**
 - [ ] Screenshots: home, concrete, stairs, running, triangle
 - [ ] Age rating: tools/reference, no user-generated content
 - [ ] Permissions: none required; speech uses OS TTS only
