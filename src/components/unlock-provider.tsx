@@ -2,15 +2,20 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useState,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
 import {
-  readUnlockedFlag,
-  restoreUnlockFlag,
-  writeUnlockedFlag,
-} from "@/lib/unlock";
+  billingFootnote,
+  createUnlockBilling,
+  listenForUnlockTransactions,
+  type BillingActionResult,
+  type BillingKind,
+} from "@/lib/billing";
+import { readUnlockedFlag, UNLOCK_PRICE_LABEL } from "@/lib/unlock";
 
 const listeners = new Set<() => void>();
 
@@ -35,29 +40,80 @@ function getServerSnapshot() {
 
 type UnlockContextValue = {
   unlocked: boolean;
-  unlockOnThisDevice: () => void;
-  restoreOnThisDevice: () => { unlocked: boolean; message: string };
+  kind: BillingKind;
+  priceLabel: string;
+  busy: boolean;
+  footnote: string;
+  purchaseUnlock: () => Promise<BillingActionResult>;
+  restorePurchases: () => Promise<BillingActionResult>;
 };
 
 const UnlockContext = createContext<UnlockContextValue | null>(null);
 
 export function UnlockProvider({ children }: { children: ReactNode }) {
+  const billing = useMemo(() => createUnlockBilling(), []);
   const unlocked = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const [kind, setKind] = useState<BillingKind>("stub");
+  const [priceLabel, setPriceLabel] = useState(UNLOCK_PRICE_LABEL);
+  const [busy, setBusy] = useState(false);
 
-  const unlockOnThisDevice = useCallback(() => {
-    writeUnlockedFlag(true);
-    emit();
-  }, []);
+  useEffect(() => {
+    let cancelled = false;
+    let stopListening: (() => void) | undefined;
+    void (async () => {
+      const nextKind = await billing.resolveKind();
+      const nextPrice = await billing.getPriceLabel();
+      await billing.refreshFromStore();
+      stopListening = await listenForUnlockTransactions(() => emit());
+      if (cancelled) {
+        stopListening();
+        return;
+      }
+      setKind(nextKind);
+      setPriceLabel(nextPrice);
+      emit();
+    })();
+    return () => {
+      cancelled = true;
+      stopListening?.();
+    };
+  }, [billing]);
 
-  const restoreOnThisDevice = useCallback(() => {
-    const result = restoreUnlockFlag();
-    emit();
-    return result;
-  }, []);
+  const purchaseUnlock = useCallback(async () => {
+    setBusy(true);
+    try {
+      const result = await billing.purchase();
+      emit();
+      return result;
+    } finally {
+      setBusy(false);
+    }
+  }, [billing]);
+
+  const restorePurchases = useCallback(async () => {
+    setBusy(true);
+    try {
+      const result = await billing.restore();
+      emit();
+      return result;
+    } finally {
+      setBusy(false);
+    }
+  }, [billing]);
+
+  const footnote = billingFootnote(kind, billing.platformName);
 
   const value = useMemo(
-    () => ({ unlocked, unlockOnThisDevice, restoreOnThisDevice }),
-    [restoreOnThisDevice, unlockOnThisDevice, unlocked],
+    () => ({
+      unlocked,
+      kind,
+      priceLabel,
+      busy,
+      footnote,
+      purchaseUnlock,
+      restorePurchases,
+    }),
+    [busy, footnote, kind, priceLabel, purchaseUnlock, restorePurchases, unlocked],
   );
 
   return <UnlockContext.Provider value={value}>{children}</UnlockContext.Provider>;

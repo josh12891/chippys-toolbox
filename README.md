@@ -22,9 +22,9 @@ The four tools sit equally on the home screen (no carpenter-only ranking):
 3. **Running measurements** — ends vs between; members / spaces / max gap; centres, gaps and marks; **Play / Stop** speech read-out (`en-AU`).
 4. **Triangle calculator** — right angle from sides and/or angles; diagram; 3-4-5 (and 5-12-13) detect.
 
-No login. About ships in-app. The store-facing privacy policy is `public/privacy.html`.
+No login. About ships in-app. The store-facing privacy policy is `public/privacy.html` (copied to `docs/privacy.html` for GitHub Pages).
 
-## Pricing (locked)
+## Pricing
 
 Freemium, **no ads**, offline, metric.
 
@@ -33,36 +33,47 @@ Freemium, **no ads**, offline, metric.
 | Free | Triangle calculator, running measurements |
 | Paid unlock | Stair set-out, concrete volume, and set-out (same one-time purchase) |
 | Price | **$9.99 AUD** one-time |
-| Product id (placeholder) | `tradies_toolbox_setout_unlock` |
+| Product id | `tradies_toolbox_setout_unlock` (non-consumable / managed product) |
 
-This PR **does not** wire App Store / Play Billing. Paid routes (`/#/stairs`, `/#/concrete`) show a clean unlock screen. Tapping **Unlock · $9.99 AUD** sets a local flag (`localStorage` key `tradies-toolbox.unlock.v1`) so the full tool UI can still be reviewed. **Restore purchases** reads that same flag.
+Native Android and iOS builds use **[@capgo/native-purchases](https://github.com/Cap-go/capacitor-native-purchases)** — Play Billing on Android and StoreKit 2 on iOS — for product id `tradies_toolbox_setout_unlock`. A successful purchase (or restore) caches an on-device flag (`localStorage` key `tradies-toolbox.unlock.v1`) so stairs and concrete stay available **offline**. **Restore purchases** queries the store account (required by Apple).
 
-Follow-up: StoreKit 2 + Play Billing, restore receipts, and replace the local flag. Apple requires a Restore control; the button is already on the unlock screen.
+Web and debug builds keep the **local unlock stub** (same flag, not billed) so the paid UI can be reviewed without Play Console or App Store Connect. Production native builds do not use that stub when billing is available.
 
-## Privacy policy (store URL)
+Paid routes: `/#/stairs`, `/#/concrete`.
 
-`public/privacy.html` is the public policy for **Tradies Toolbox** (`com.chippystoolbox.app`), published by **Joshua Pearson** (Apple Individual): no accounts, offline-first, no ads, optional $9.99 AUD IAP handled by Apple/Google. Vite copies it to `dist/privacy.html`, so the Capacitor app can open it offline (Home → Privacy, About, and `/#/privacy`).
+## Privacy policy URL (GitHub Pages)
 
-App Store Connect and Google Play need a **public https URL**. Host that file on any static host. GitHub Pages example:
+Public store URL (paste this into App Store Connect and Google Play):
 
-1. Copy `public/privacy.html` to the Pages root (or enable Pages from the `/docs` folder and put the file at `docs/privacy.html`).
-2. Store privacy URL: `https://josh12891.github.io/chippys-toolbox/privacy.html`
+**https://josh12891.github.io/chippys-toolbox/privacy.html**
+
+`public/privacy.html` is the policy for **Tradies Toolbox** (`com.chippystoolbox.app`), published by **Joshua Pearson** (Apple Individual): no accounts, offline-first, no ads, optional $9.99 AUD IAP handled by Apple/Google. Vite copies it to `dist/privacy.html` for the Capacitor app (Home → Privacy, About, and `/#/privacy`). `npm run build` / `npm test` also copy it to `docs/privacy.html` for Pages.
+
+### Enable GitHub Pages (once, after this is on `main`)
+
+1. Open the repo on GitHub → **Settings** → **Pages**.
+2. Under **Build and deployment**, set **Source** to **Deploy from a branch**.
+3. Branch: **`main`**. Folder: **`/docs`**.
+4. Save. Wait a minute for the first deploy.
+5. Confirm: [https://josh12891.github.io/chippys-toolbox/privacy.html](https://josh12891.github.io/chippys-toolbox/privacy.html)
+
+Do not use GitHub Actions for this URL unless you later change the Pages source. The `/docs` folder on `main` is enough.
 
 Support / store contact: **josh@pearsonindustries.com.au**.
 
 ## Requirements
 
 - Node.js 20+
-- Android Studio (Ladybug or newer) for Play builds
-- Xcode 16+ on macOS for App Store builds
+- Android Studio (Ladybug or newer) for Play builds (minSdk 24)
+- Xcode 16+ on macOS for App Store builds (iOS 15+)
 
 ## Scripts
 
 ```bash
 npm install
 npm run dev          # Vite SPA at http://localhost:5173
-npm test             # math unit tests
-npm run build        # typecheck + production dist/
+npm test             # math + billing + privacy-docs tests
+npm run build        # sync docs/privacy.html, typecheck, production dist/
 npm run assets       # regenerate icon/splash PNGs from the brand mark
 npm run cap:sync     # build web assets and copy into android/ + ios/
 npm run cap:android  # sync then open Android Studio
@@ -102,29 +113,64 @@ Live reload against a packager is optional and **not** used for store binaries. 
 4. Display name: **Tradies Toolbox**.
 5. Archive and upload with Transporter / Organizer.
 
-iOS project files can be generated on Linux; **signing, Simulator and App Store upload require a Mac**.
+iOS project files can be generated on Linux; **signing, Simulator and App Store upload require a Mac**. This repo does not run Xcode or `pod install` in CI. StoreKit 2 (via `@capgo/native-purchases`) needs **iOS 15+**; the Xcode project and Podfile are set to that deployment target.
+
+## Google Play — in-app product + license testers
+
+Product: **`tradies_toolbox_setout_unlock`** · one-time (managed / non-consumable) · **$9.99 AUD**.
+
+1. Play Console → the **Tradies Toolbox** app (`com.chippystoolbox.app`) → **Monetize** → **In-app products** → **Create product**.
+2. Product ID must be exactly `tradies_toolbox_setout_unlock` (it cannot be changed later).
+3. Type: **One-time product** (not a subscription). Status: **Active**.
+4. Name / description: “Set-out unlock” — stair set-out + concrete volume, no ads, offline.
+5. Default price: **AUD 9.99**. Save and activate.
+6. **License testing:** Play Console → **Settings** → **License testing**. Add Gmail accounts that should get test purchases (no charge). Testers must use that Google account on the device.
+7. Upload a signed AAB to an **internal testing** track (Play Billing will not work from a sideloaded debug APK that was never installed via Play). Testers opt in to the internal track link, install, then tap **Unlock**.
+8. On device: open stairs or concrete → **Unlock** (Play purchase sheet) or **Restore purchases** (replays the Play account entitlement).
+9. Emulators without Play Store / an unpaid license tester will fail billing; use a real device and the internal track.
+
+The Android manifest includes `com.android.vending.BILLING`. `@capgo/native-purchases` talks to Play Billing directly (no RevenueCat account).
+
+## App Store Connect — StoreKit IAP (no Mac required for this setup)
+
+Same product id: **`tradies_toolbox_setout_unlock`** · Non-Consumable · **$9.99 AUD**.
+
+1. In [App Store Connect](https://appstoreconnect.apple.com) accept the **Paid Applications Agreement** (Business → Agreements) so IAPs can be created.
+2. Open the **Tradies Toolbox** app record (`com.chippystoolbox.app`) → **Monetization** → **In-App Purchases** → **Create**.
+3. Type: **Non-Consumable**. Product ID: `tradies_toolbox_setout_unlock`.
+4. Reference name: Set-out unlock. Localization (English AU): display name + description matching the Play listing.
+5. Price Schedule: Australia **$9.99 AUD** (or the tier that maps to 9.99 AUD). Availability: all countries you ship.
+6. Review screenshot / notes when you submit the binary. IAP must be submitted with an app version.
+7. Create **Sandbox** Apple IDs (Users and Access → Sandbox) for device testing. Sign in with the sandbox account in Settings → App Store (not in iCloud) on a device.
+8. Optional local Xcode testing (Mac): add `ios/TradiesToolbox.storekit` as a StoreKit Configuration file to the App scheme (*Product → Scheme → Edit Scheme → Run → Options → StoreKit Configuration*). Product id inside that file is `tradies_toolbox_setout_unlock`.
+
+The same Capacitor plugin (`@capgo/native-purchases`) calls StoreKit 2 on iOS. Restore purchases is on the unlock screen (App Review requires it). You still need a Mac later to archive and upload; this tree is enough to wire the product id.
 
 ## Store checklist
 
 - [ ] App icons and splash generated (`npm run assets`, then `npx cap sync`)
 - [ ] Display name **Tradies Toolbox** on both stores
 - [ ] Seller / publisher **Joshua Pearson** (Apple Individual)
-- [ ] Privacy policy URL is the hosted `privacy.html` (e.g. `https://josh12891.github.io/chippys-toolbox/privacy.html`); support email **josh@pearsonindustries.com.au**
+- [ ] GitHub Pages enabled from `main` `/docs` so privacy is at **https://josh12891.github.io/chippys-toolbox/privacy.html**; support email **josh@pearsonindustries.com.au**
 - [ ] Screenshots: home, concrete, stairs, running, triangle
 - [ ] Age rating: tools/reference, no user-generated content
-- [ ] Permissions: none required; speech uses OS TTS only
-- [ ] Offline: airplane-mode smoke test of all four tools
+- [ ] Permissions: none required beyond Play Billing; speech uses OS TTS only
+- [ ] Offline: airplane-mode smoke test of all four tools (after an unlock or restore)
 - [ ] Stair disclaimer visible (NCC 2022 Housing Provisions 11.2 and AS 1657:2018 — soft hints, not a certificate)
-- [ ] IAP product `tradies_toolbox_setout_unlock` at $9.99 AUD one-time (App Store Connect + Play Console)
-- [ ] Restore purchases wired to store receipts (Apple requirement)
+- [ ] Play Console product `tradies_toolbox_setout_unlock` at $9.99 AUD one-time, **Active**, tested with **license testers** on an internal track
+- [ ] App Store Connect non-consumable `tradies_toolbox_setout_unlock` at $9.99 AUD; sandbox restore
+- [ ] Restore purchases uses store receipts (Play Billing / StoreKit), not only the local flag
 - [ ] Signed Play AAB + App Store archive from the same `npm run build` commit
 
 ## Project layout
 
 ```
-src/lib          concrete, stairs, running, triangle math + unlock flag (ported from prototype/)
-src/components   tool UIs and diagrams (ported from prototype/)
+src/lib          concrete, stairs, running, triangle math + unlock/billing
+src/components   tool UIs, diagrams, unlock gate
 src/pages        home, About (Privacy opens public/privacy.html)
+docs/            GitHub Pages (privacy.html + index)
+public/privacy.html  source privacy policy (copied to dist/ and docs/)
+ios/TradiesToolbox.storekit  optional StoreKit config for Xcode
 prototype/       exact Grok calculator source used as the port origin
 android/         Capacitor 7 Android project
 ios/             Capacitor 7 iOS project

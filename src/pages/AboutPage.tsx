@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import { AppShell } from "../components/app-shell.tsx"
+import { PUBLIC_PRIVACY_URL } from "../lib/unlock.ts"
 
 export function AboutPage() {
   return (
@@ -11,9 +12,8 @@ export function AboutPage() {
       </p>
       <p className="mt-4 text-base leading-relaxed text-muted">
         Triangle calculator and running measurements are free. Stair set-out, concrete
-        volume and the set-out pack unlock once for $9.99 AUD. No ads, offline, metric.
-        Store billing will go through the App Store and Google Play; this build uses a
-        local unlock flag until that wiring ships.
+        volume and the set-out pack unlock once for $9.99 AUD through Google Play or the
+        App Store. No ads, offline, metric. Web and debug builds keep a local unlock stub.
       </p>
       <p className="mt-4 text-base leading-relaxed text-muted">
         Stair checks follow NCC 2022 Housing Provisions 11.2 and AS 1657:2018 as a field
@@ -25,9 +25,13 @@ export function AboutPage() {
         <a href="mailto:josh@pearsonindustries.com.au" className="font-semibold text-primary">
           josh@pearsonindustries.com.au
         </a>
-        . The public privacy policy (also used for App Store / Play listings) is{" "}
+        . Privacy (offline copy):{" "}
         <a href="./privacy.html" className="font-semibold text-primary">
           privacy.html
+        </a>
+        . Store URL:{" "}
+        <a href={PUBLIC_PRIVACY_URL} className="font-semibold text-primary">
+          josh12891.github.io/chippys-toolbox/privacy.html
         </a>
         .
       </p>

@@ -58,7 +58,7 @@ describe("unlock gate", () => {
     expect(readUnlockedFlag(storage)).toBe(false);
   });
 
-  it("restores from the local flag until store billing is wired", () => {
+  it("restores from the local flag for the web/debug stub", () => {
     const empty = memoryStorage();
     expect(restoreUnlockFlag(empty)).toEqual({
       unlocked: false,
