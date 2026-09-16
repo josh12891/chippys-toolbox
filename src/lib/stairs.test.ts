@@ -33,6 +33,22 @@ describe('stair set-out', () => {
     expect(result?.overallGoingMm).toBe(3500)
   })
 
+  it('still sets out when a manual going sits outside NCC, with a soft going hint', () => {
+    const result = setOutStairs({
+      totalRiseMm: 2700,
+      standard: 'ncc',
+      goingMode: 'tread',
+      treadGoingMm: 200,
+      stairWidthMm: 900,
+    })
+    expect(result).not.toBeNull()
+    expect(result?.goingMm).toBe(200)
+    expect(result?.riseMm).toBeCloseTo(180, 6)
+    const going = result?.checks.find((c) => c.label === 'Going')
+    expect(going?.ok).toBe(false)
+    expect(result?.compliant).toBe(false)
+  })
+
   it('inserts a landing when more than 18 risers are required', () => {
     const result = setOutStairs({
       totalRiseMm: 3800,

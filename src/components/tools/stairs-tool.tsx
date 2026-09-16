@@ -132,6 +132,14 @@ export function StairsTool() {
             <p className="mt-1 text-sm text-muted">
               {result.risers} rises · {formatMm(result.totalRiseMm)} overall
             </p>
+            <p className="mt-1 text-sm text-muted">
+              Typical {std.name} rise {std.riseMin}–{std.riseMax} mm
+            </p>
+            {result.checks.find((c) => c.label === "Rise" && !c.ok) ? (
+              <p className="mt-1 text-sm text-warn">
+                Outside the usual rise — still drawn. Confirm with the certifier.
+              </p>
+            ) : null}
           </Card>
           <Card>
             <p className="text-xs font-medium uppercase tracking-display text-muted">
@@ -144,6 +152,14 @@ export function StairsTool() {
             <p className="mt-1 text-sm text-muted">
               {result.treads} goings · {formatMm(result.overallGoingMm)} overall
             </p>
+            <p className="mt-1 text-sm text-muted">
+              Typical {std.name} going {std.goingMin}–{std.goingMax} mm
+            </p>
+            {result.checks.find((c) => c.label === "Going" && !c.ok) ? (
+              <p className="mt-1 text-sm text-warn">
+                Outside the usual going — still drawn. Confirm with the certifier.
+              </p>
+            ) : null}
           </Card>
           <Card>
             <p className="text-xs font-medium uppercase tracking-display text-muted">
@@ -154,8 +170,13 @@ export function StairsTool() {
               <span className="ml-1 text-lg font-medium text-muted">mm</span>
             </p>
             <p className="mt-1 text-sm text-muted">
-              Pitch {result.pitchDeg.toFixed(1)}°
+              Pitch {result.pitchDeg.toFixed(1)}° · typical 2R+G {std.slopeMin}–{std.slopeMax} mm
             </p>
+            {result.checks.find((c) => c.label === "2R + G" && !c.ok) ? (
+              <p className="mt-1 text-sm text-warn">
+                2R+G sits outside the usual band — a field hint, not a stop.
+              </p>
+            ) : null}
           </Card>
           <Card>
             <p className="text-xs font-medium uppercase tracking-display text-muted">
@@ -194,19 +215,25 @@ export function StairsTool() {
 
       <Card className="mt-4">
         <div className="mb-3 flex flex-wrap items-center gap-2">
-          <CardTitle className="mb-0">{std.name}</CardTitle>
+          <CardTitle className="mb-0">{std.name} hints</CardTitle>
           {result ? (
-            <Badge variant={result.compliant ? "ok" : "danger"}>
-              {result.compliant ? "Within limits" : "Outside limits"}
+            <Badge variant={result.compliant ? "ok" : "warn"}>
+              {result.compliant ? "Looks typical" : "Check on site"}
             </Badge>
           ) : null}
         </div>
-        <p className="mb-3 text-sm text-muted">{std.short}</p>
+        <p className="mb-3 text-sm text-muted">
+          {std.short}. Soft guidance for the tape — not a certificate, and it will not
+          block the set-out.
+        </p>
         {result ? (
           <ul className="mb-3 flex flex-col gap-2">
             {result.checks.map((c) => (
               <li key={c.label} className="flex items-center justify-between gap-3 text-sm">
-                <span className={c.ok ? "text-ink" : "text-danger"}>{c.label}</span>
+                <span className={c.ok ? "text-ink" : "text-warn"}>
+                  {c.label}
+                  {c.ok ? "" : " — hint"}
+                </span>
                 <span className="tabular-nums text-muted">{c.detail}</span>
               </li>
             ))}
@@ -217,6 +244,9 @@ export function StairsTool() {
             <li key={n}>— {n}</li>
           ))}
         </ul>
+        <p className="mt-3 text-sm text-muted">
+          Confirm with the certifier on the job.
+        </p>
       </Card>
     </AppShell>
   );
