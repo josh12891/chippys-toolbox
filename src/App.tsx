@@ -1,4 +1,5 @@
 import { HashRouter, Navigate, Route, Routes } from 'react-router'
+import { UnlockProvider } from './components/unlock-provider.tsx'
 import { AboutPage, PrivacyPage } from './pages/AboutPage.tsx'
 import { ConcretePage } from './pages/ConcretePage.tsx'
 import { HomePage } from './pages/HomePage.tsx'
@@ -9,18 +10,20 @@ import { TrianglePage } from './pages/TrianglePage.tsx'
 export default function App() {
   return (
     <HashRouter>
-      <div className="min-h-dvh pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/concrete" element={<ConcretePage />} />
-          <Route path="/stairs" element={<StairsPage />} />
-          <Route path="/running" element={<RunningPage />} />
-          <Route path="/triangle" element={<TrianglePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </div>
+      <UnlockProvider>
+        <div className="min-h-dvh pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/concrete" element={<ConcretePage />} />
+            <Route path="/stairs" element={<StairsPage />} />
+            <Route path="/running" element={<RunningPage />} />
+            <Route path="/triangle" element={<TrianglePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </UnlockProvider>
     </HashRouter>
   )
 }

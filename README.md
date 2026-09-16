@@ -22,6 +22,21 @@ The four tools sit equally on the home screen (no carpenter-only ranking):
 
 No login. About and Privacy stubs ship in-app.
 
+## Pricing (locked)
+
+Freemium, **no ads**, offline, metric.
+
+| | |
+| --- | --- |
+| Free | Triangle calculator, running measurements |
+| Paid unlock | Stair set-out, concrete volume, and set-out (same one-time purchase) |
+| Price | **$9.99 AUD** one-time |
+| Product id (placeholder) | `tradies_toolbox_setout_unlock` |
+
+This PR **does not** wire App Store / Play Billing. Paid routes (`/#/stairs`, `/#/concrete`) show a clean unlock screen. Tapping **Unlock · $9.99 AUD** sets a local flag (`localStorage` key `tradies-toolbox.unlock.v1`) so the full tool UI can still be reviewed. **Restore purchases** reads that same flag.
+
+Follow-up: StoreKit 2 + Play Billing, restore receipts, and replace the local flag. Apple requires a Restore control; the button is already on the unlock screen.
+
 ## Requirements
 
 - Node.js 20+
@@ -86,12 +101,14 @@ iOS project files can be generated on Linux; **signing, Simulator and App Store 
 - [ ] Permissions: none required; speech uses OS TTS only
 - [ ] Offline: airplane-mode smoke test of all four tools
 - [ ] Stair disclaimer visible (NCC 2022 Housing Provisions 11.2 and AS 1657:2018 — soft hints, not a certificate)
+- [ ] IAP product `tradies_toolbox_setout_unlock` at $9.99 AUD one-time (App Store Connect + Play Console)
+- [ ] Restore purchases wired to store receipts (Apple requirement)
 - [ ] Signed Play AAB + App Store archive from the same `npm run build` commit
 
 ## Project layout
 
 ```
-src/lib          concrete, stairs, running, triangle math (ported from prototype/)
+src/lib          concrete, stairs, running, triangle math + unlock flag (ported from prototype/)
 src/components   tool UIs and diagrams (ported from prototype/)
 src/pages        home, About, Privacy
 prototype/       exact Grok calculator source used as the port origin
