@@ -1,0 +1,29 @@
+{
+  "appId": "com.chippystoolbox.app",
+  "appName": "The Chippy's Toolbox",
+  "webDir": "dist",
+  "backgroundColor": "#e6dccf",
+  "android": {
+    "backgroundColor": "#e6dccf"
+  },
+  "ios": {
+    "backgroundColor": "#e6dccf",
+    "contentInset": "automatic",
+    "preferredContentMode": "mobile"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#e6dccf",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": true
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#e6dccf"
+    }
+  }
+}

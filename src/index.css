@@ -1,0 +1,186 @@
+@import "@fontsource/barlow/400.css";
+@import "@fontsource/barlow/500.css";
+@import "@fontsource/barlow/600.css";
+@import "@fontsource/barlow/700.css";
+@import "@fontsource/barlow-condensed/600.css";
+@import "@fontsource/barlow-condensed/700.css";
+@import "@fontsource/barlow-condensed/800.css";
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-cond: "Barlow Condensed", "Arial Narrow", ui-sans-serif, sans-serif;
+  --color-bg: #e6dccf;
+  --color-surface: #faf7f2;
+  --color-ink: #1a1714;
+  --color-primary: #2f4a3c;
+  --color-primary-ink: #f3eee6;
+  --color-muted: #6d675f;
+  --color-line: #d7ccbe;
+  --color-track: #efe8dc;
+  --color-warn: #8a4b1f;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  background: var(--color-bg);
+}
+
+body {
+  margin: 0;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+input[type="number"] {
+  appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  min-height: 100svh;
+  background: var(--color-bg);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.page {
+  width: min(430px, 100%);
+  margin: 0 auto;
+  padding: 20px 18px 32px;
+}
+
+.display {
+  font-family: var(--font-cond);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 0.92;
+}
+
+.kicker {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.card {
+  background: var(--color-surface);
+  border-radius: 28px;
+  box-shadow: 0 10px 30px rgba(26, 23, 20, 0.05);
+}
+
+.seg-track {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--color-track);
+}
+
+.seg-btn {
+  flex: 1;
+  min-height: 48px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.seg-btn.on {
+  background: var(--color-primary);
+  color: var(--color-primary-ink);
+}
+
+.stepper-btn {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-line);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: 28px;
+  line-height: 1;
+}
+
+.stepper-field {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 56px;
+  border-radius: 18px;
+  background: #fffdf8;
+  border: 1.5px solid var(--color-line);
+}
+
+.stepper-field input {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  padding: 0 42px 0 12px;
+  color: var(--color-ink);
+}
+
+.stepper-field .unit {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.back-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  box-shadow: 0 6px 16px rgba(26, 23, 20, 0.06);
+  display: grid;
+  place-items: center;
+}
+
+.icon-tile {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: var(--color-primary);
+  color: var(--color-primary-ink);
+  display: grid;
+  place-items: center;
+  flex: none;
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">The Chippy\'s Toolbox</string>
+    <string name="title_activity_main">The Chippy\'s Toolbox</string>
+    <string name="package_name">com.chippystoolbox.app</string>
+    <string name="custom_url_scheme">com.chippystoolbox.app</string>
+</resources>
