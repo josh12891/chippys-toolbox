@@ -103,9 +103,9 @@ export function HomePage() {
         <Link to="/about" className="text-primary">
           About
         </Link>
-        <Link to="/privacy" className="text-primary">
+        <a href="./privacy.html" className="text-primary">
           Privacy
-        </Link>
+        </a>
       </p>
     </div>
   );

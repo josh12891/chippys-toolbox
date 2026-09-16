@@ -1,4 +1,4 @@
-import { Link } from "react-router"
+import { useEffect } from "react"
 import { AppShell } from "../components/app-shell.tsx"
 
 export function AboutPage() {
@@ -20,32 +20,32 @@ export function AboutPage() {
         aid. They are not a substitute for the standard, the drawings, or the certifier on
         the job.
       </p>
+      <p className="mt-4 text-base leading-relaxed text-muted">
+        The public privacy policy (also used for App Store / Play listings) is{" "}
+        <a href="./privacy.html" className="font-semibold text-primary">
+          privacy.html
+        </a>
+        .
+      </p>
       <p className="mt-4 text-sm text-subtle">Version 1.0.0 · Offline Capacitor app</p>
     </AppShell>
   )
 }
 
 export function PrivacyPage() {
+  useEffect(() => {
+    window.location.replace("./privacy.html")
+  }, [])
+
   return (
     <AppShell title="Privacy" subtitle="Measurements stay on the device." back>
       <p className="text-base leading-relaxed text-muted">
-        Tradies Toolbox does not create accounts, and it does not send your
-        measurements to a server. Lengths, volumes and speech read-outs stay on the
-        device.
+        Opening the privacy policy…
       </p>
-      <p className="mt-4 text-base leading-relaxed text-muted">
-        The optional running-measurement voice uses the operating system text-to-speech.
-        No analytics, advertising or crash telemetry are bundled in this build.
-      </p>
-      <p className="mt-4 text-base leading-relaxed text-muted">
-        If a future store listing adds optional diagnostics, this page will be updated
-        before that release ships. When in-app purchases are wired, Apple and Google
-        process the one-time unlock; this app will not receive your card details.
-      </p>
-      <p className="mt-6 text-sm font-semibold">
-        <Link to="/" className="text-primary">
-          Back to tools
-        </Link>
+      <p className="mt-4 text-sm font-semibold">
+        <a href="./privacy.html" className="text-primary">
+          Open privacy policy
+        </a>
       </p>
     </AppShell>
   )

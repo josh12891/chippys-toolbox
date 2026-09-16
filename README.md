@@ -20,7 +20,7 @@ The four tools sit equally on the home screen (no carpenter-only ranking):
 3. **Running measurements** — ends vs between; members / spaces / max gap; centres, gaps and marks; **Play / Stop** speech read-out (`en-AU`).
 4. **Triangle calculator** — right angle from sides and/or angles; diagram; 3-4-5 (and 5-12-13) detect.
 
-No login. About and Privacy stubs ship in-app.
+No login. About ships in-app. The store-facing privacy policy is `public/privacy.html`.
 
 ## Pricing (locked)
 
@@ -36,6 +36,17 @@ Freemium, **no ads**, offline, metric.
 This PR **does not** wire App Store / Play Billing. Paid routes (`/#/stairs`, `/#/concrete`) show a clean unlock screen. Tapping **Unlock · $9.99 AUD** sets a local flag (`localStorage` key `tradies-toolbox.unlock.v1`) so the full tool UI can still be reviewed. **Restore purchases** reads that same flag.
 
 Follow-up: StoreKit 2 + Play Billing, restore receipts, and replace the local flag. Apple requires a Restore control; the button is already on the unlock screen.
+
+## Privacy policy (store URL)
+
+`public/privacy.html` is the public policy for **Tradies Toolbox** (`com.chippystoolbox.app`): no accounts, offline-first, no ads, optional $9.99 AUD IAP handled by Apple/Google. Vite copies it to `dist/privacy.html`, so the Capacitor app can open it offline (Home → Privacy, About, and `/#/privacy`).
+
+App Store Connect and Google Play need a **public https URL**. Host that file on any static host. GitHub Pages example:
+
+1. Copy `public/privacy.html` to the Pages root (or enable Pages from the `/docs` folder and put the file at `docs/privacy.html`).
+2. Store privacy URL: `https://josh12891.github.io/chippys-toolbox/privacy.html`
+
+Replace the `SUPPORT_EMAIL` placeholder with a live contact address before you submit.
 
 ## Requirements
 
@@ -95,7 +106,7 @@ iOS project files can be generated on Linux; **signing, Simulator and App Store 
 
 - [ ] App icons and splash generated (`npm run assets`, then `npx cap sync`)
 - [ ] Display name **Tradies Toolbox** on both stores
-- [ ] Privacy policy URL points at the in-app `/privacy` copy (or a hosted twin of `src/pages/AboutPage.tsx`)
+- [ ] Privacy policy URL is the hosted `privacy.html` (e.g. `https://josh12891.github.io/chippys-toolbox/privacy.html`); replace `SUPPORT_EMAIL`
 - [ ] Screenshots: home, concrete, stairs, running, triangle
 - [ ] Age rating: tools/reference, no user-generated content
 - [ ] Permissions: none required; speech uses OS TTS only
@@ -110,7 +121,7 @@ iOS project files can be generated on Linux; **signing, Simulator and App Store 
 ```
 src/lib          concrete, stairs, running, triangle math + unlock flag (ported from prototype/)
 src/components   tool UIs and diagrams (ported from prototype/)
-src/pages        home, About, Privacy
+src/pages        home, About (Privacy opens public/privacy.html)
 prototype/       exact Grok calculator source used as the port origin
 android/         Capacitor 7 Android project
 ios/             Capacitor 7 iOS project
