@@ -8,6 +8,7 @@ This is a **Capacitor + Vite + React + TypeScript SPA**. All web assets are bund
 | --- | --- |
 | Display name | Tradies Toolbox |
 | Package / app ID | `com.chippystoolbox.app` |
+| Seller / publisher | Joshua Pearson (Apple Individual) |
 | npm name | `chippys-toolbox` |
 | Audience | Australian tradies on the job |
 
@@ -39,14 +40,14 @@ Follow-up: StoreKit 2 + Play Billing, restore receipts, and replace the local fl
 
 ## Privacy policy (store URL)
 
-`public/privacy.html` is the public policy for **Tradies Toolbox** (`com.chippystoolbox.app`): no accounts, offline-first, no ads, optional $9.99 AUD IAP handled by Apple/Google. Vite copies it to `dist/privacy.html`, so the Capacitor app can open it offline (Home → Privacy, About, and `/#/privacy`).
+`public/privacy.html` is the public policy for **Tradies Toolbox** (`com.chippystoolbox.app`), published by **Joshua Pearson** (Apple Individual): no accounts, offline-first, no ads, optional $9.99 AUD IAP handled by Apple/Google. Vite copies it to `dist/privacy.html`, so the Capacitor app can open it offline (Home → Privacy, About, and `/#/privacy`).
 
 App Store Connect and Google Play need a **public https URL**. Host that file on any static host. GitHub Pages example:
 
 1. Copy `public/privacy.html` to the Pages root (or enable Pages from the `/docs` folder and put the file at `docs/privacy.html`).
 2. Store privacy URL: `https://josh12891.github.io/chippys-toolbox/privacy.html`
 
-Replace the `SUPPORT_EMAIL` placeholder with a live contact address before you submit.
+Replace the `SUPPORT_EMAIL` placeholder with a live contact address before you submit (address not locked yet).
 
 ## Requirements
 
@@ -106,7 +107,8 @@ iOS project files can be generated on Linux; **signing, Simulator and App Store 
 
 - [ ] App icons and splash generated (`npm run assets`, then `npx cap sync`)
 - [ ] Display name **Tradies Toolbox** on both stores
-- [ ] Privacy policy URL is the hosted `privacy.html` (e.g. `https://josh12891.github.io/chippys-toolbox/privacy.html`); replace `SUPPORT_EMAIL`
+- [ ] Seller / publisher **Joshua Pearson** (Apple Individual)
+- [ ] Privacy policy URL is the hosted `privacy.html` (e.g. `https://josh12891.github.io/chippys-toolbox/privacy.html`); leave `SUPPORT_EMAIL` until the address is set
 - [ ] Screenshots: home, concrete, stairs, running, triangle
 - [ ] Age rating: tools/reference, no user-generated content
 - [ ] Permissions: none required; speech uses OS TTS only
