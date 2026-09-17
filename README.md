@@ -67,7 +67,7 @@ Do not switch Pages to GitHub Actions unless you intend to change that URL. Supp
 ## Requirements
 
 - Node.js 20+
-- Android Studio (Ladybug or newer) for Play builds (minSdk 24)
+- Android Studio (Ladybug or newer) for Play builds (minSdk 24, targetSdk 36)
 - Xcode 16+ on macOS for App Store builds (iOS 15+)
 
 ## Scripts
@@ -106,7 +106,7 @@ Live reload against a packager is optional and **not** used for store binaries. 
 1. Install Android Studio with the Android SDK and a device/emulator.
 2. `npm run cap:android` (or open `android/` in Android Studio).
 3. Release signing uses `android/keystore.properties` + `android/upload-keystore.jks` (both gitignored). Copy `android/keystore.properties.example` and restore the upload key from your password manager — see **Release signing** below. Do **not** generate a second keystore if you already uploaded an AAB.
-4. Product flavour / version: bump `versionCode` / `versionName` in `android/app/build.gradle` for every Play update after `1` / `1.0`.
+4. Product flavour / version: bump `versionCode` / `versionName` in `android/app/build.gradle` for every Play update after `2` / `1.0.1`.
 5. Signed AAB from the CLI: `npm run android:bundle` (Gradle `bundleRelease`). In the IDE: *Build → Generate Signed App Bundle* with the same upload key.
 
 ## Release signing (Play upload key)
@@ -147,7 +147,7 @@ Play Console is live. Creating IAP `tradies_toolbox_setout_unlock` is **blocked 
 
 Package / application id: **`com.josh12891.tradiestoolbox`** · Product: **`tradies_toolbox_setout_unlock`** · **$9.99 AUD** one-time.
 
-Play Console rejected `com.chippystoolbox.app` with *“Your APK or Android App Bundle needs to have the package name com.josh12891.tradiestoolbox”*. This AAB matches that listing id. IAP product id stays `tradies_toolbox_setout_unlock`.
+Play Console rejected `com.chippystoolbox.app` with *“Your APK or Android App Bundle needs to have the package name com.josh12891.tradiestoolbox”*. This AAB matches that listing id. IAP product id stays `tradies_toolbox_setout_unlock`. Play also requires **targetSdk 36** (API 35 was blocked on Internal testing rollout).
 
 The app manifest (and `@capgo/native-purchases`) includes `com.android.vending.BILLING`. Gradle `bundleRelease` produces the signed AAB when `android/keystore.properties` is present.
 
@@ -155,9 +155,9 @@ The app manifest (and `@capgo/native-purchases`) includes `com.android.vending.B
 
 1. Download the signed AAB (no login wall on this public repo):
 
-   **https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.0-internal-b/tradies-toolbox-1.0.aab**
+   **https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.0-internal-c/tradies-toolbox-1.0.aab**
 
-   Tag `v1.0.0-internal-b` · asset **`tradies-toolbox-1.0.aab`** · package `com.josh12891.tradiestoolbox` · versionCode `1` · versionName `1.0`. Or rebuild with `npm run android:bundle`. The Play **upload keystore is not** on that release — keep it in a password manager only.
+   Tag `v1.0.0-internal-c` · asset **`tradies-toolbox-1.0.aab`** · package `com.josh12891.tradiestoolbox` · versionCode `2` · versionName `1.0.1` · targetSdk **36**. Or rebuild with `npm run android:bundle`. The Play **upload keystore is not** on that release — keep it in a password manager only.
 2. [Play Console](https://play.google.com/console) → developer **Australian Dynamics** → app **Tradies Toolbox**.
 3. Confirm **App content → Privacy policy** is already **https://josh12891.github.io/chippys-toolbox/privacy.html**.
 4. **Test and release** → **Testing** → **Internal testing**.
