@@ -42,12 +42,18 @@ describe("Play release AAB wiring", () => {
 
   it("documents first-AAB upload then IAP create", () => {
     const readme = read("README.md");
+    expect(UNLOCK_PRODUCT_ID).toBe("tradies_toolbox_setout_unlock");
     expect(readme).toContain("com.chippystoolbox.app");
     expect(readme).toContain("com.android.vending.BILLING");
     expect(readme).toContain("bundleRelease");
     expect(readme).toContain(UNLOCK_PRODUCT_ID);
+    expect(readme).toContain("tradies_toolbox_setout_unlock");
+    expect(readme).not.toMatch(/tradies[-]toolbox[-]setout[-]unlock/);
     expect(readme).toContain(UNLOCK_PRICE_LABEL);
     expect(readme).toContain("Internal testing");
     expect(readme).toContain("keystore.properties");
+    expect(readme).toContain(
+      "https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.0-internal/tradies-toolbox-1.0.aab",
+    );
   });
 });

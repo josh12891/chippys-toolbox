@@ -153,7 +153,11 @@ The app manifest (and `@capgo/native-purchases`) includes `com.android.vending.B
 
 ### 1. Upload the signed AAB to Internal testing
 
-1. Download **`app-release.aab`** from this PR’s Cursor agent artifacts (or rebuild with `npm run android:bundle`). Package must be `com.chippystoolbox.app`, versionCode `1`, versionName `1.0`.
+1. Download the signed AAB (no login wall on this public repo):
+
+   **https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.0-internal/tradies-toolbox-1.0.aab**
+
+   Tag `v1.0.0-internal` · asset **`tradies-toolbox-1.0.aab`** · package `com.chippystoolbox.app` · versionCode `1` · versionName `1.0`. Or rebuild with `npm run android:bundle`. The Play **upload keystore is not** on that release — keep it in a password manager only.
 2. [Play Console](https://play.google.com/console) → developer **Australian Dynamics** → app **Tradies Toolbox**.
 3. Confirm **App content → Privacy policy** is already **https://josh12891.github.io/chippys-toolbox/privacy.html**.
 4. **Test and release** → **Testing** → **Internal testing**.
