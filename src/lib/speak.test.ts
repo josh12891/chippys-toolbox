@@ -188,4 +188,55 @@ describe("web speech engine", () => {
       globalThis.SpeechSynthesisUtterance = Original;
     }
   });
+
+  it("retries in English and reports a clear error if the engine fails", async () => {
+    const spoken: SpeechSynthesisUtterance[] = [];
+    const synth = {
+      paused: false,
+      speaking: false,
+      pending: false,
+      getVoices: () => [],
+      cancel: () => {},
+      pause: () => {},
+      resume: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      speak(utterance: SpeechSynthesisUtterance) {
+        spoken.push(utterance);
+        utterance.onerror?.({
+          error: "synthesis-failed",
+        } as SpeechSynthesisErrorEvent);
+      },
+    } as unknown as SpeechSynthesis;
+
+    const Original = globalThis.SpeechSynthesisUtterance;
+    class FakeUtterance {
+      text: string;
+      lang = "";
+      rate = 1;
+      pitch = 1;
+      volume = 0;
+      voice: SpeechSynthesisVoice | null = null;
+      onend: ((ev: SpeechSynthesisEvent) => void) | null = null;
+      onerror: ((ev: SpeechSynthesisErrorEvent) => void) | null = null;
+      constructor(text: string) {
+        this.text = text;
+      }
+    }
+    globalThis.SpeechSynthesisUtterance =
+      FakeUtterance as unknown as typeof SpeechSynthesisUtterance;
+    try {
+      const engine = createWebSpeechEngine(synth);
+      await expect(engine.speak("Running measurements.", { rate: 0.92 })).rejects.toThrow(
+        SPEECH_UNAVAILABLE,
+      );
+      expect(spoken).toHaveLength(2);
+      expect(spoken[0]?.volume).toBe(DEFAULT_SPEAK_VOLUME);
+      expect(spoken[0]?.lang).toBe("en-AU");
+      expect(spoken[1]?.lang).toBe("en");
+      expect(spoken[1]?.volume).toBe(DEFAULT_SPEAK_VOLUME);
+    } finally {
+      globalThis.SpeechSynthesisUtterance = Original;
+    }
+  });
 });

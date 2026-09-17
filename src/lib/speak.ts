@@ -132,6 +132,24 @@ function createNativeEngine(): SpeakEngine {
   };
 }
 
+function friendlySpeechError(code: string | undefined): string {
+  switch (code) {
+    case "canceled":
+    case "interrupted":
+      return "";
+    case "synthesis-failed":
+    case "synthesis-unavailable":
+    case "audio-hardware":
+    case "language-unavailable":
+    case "voice-unavailable":
+    case "not-allowed":
+    case "audio-busy":
+      return SPEECH_UNAVAILABLE;
+    default:
+      return SPEECH_UNAVAILABLE;
+  }
+}
+
 export function createWebSpeechEngine(
   synth: SpeechSynthesis | null = typeof window !== "undefined"
     ? window.speechSynthesis
@@ -164,26 +182,26 @@ export function createWebSpeechEngine(
     return voicesReady;
   };
 
-  const speakUtterance = (text: string, rate: number): Promise<void> =>
+  const speakUtterance = (
+    text: string,
+    rate: number,
+    lang: string,
+    voice: SpeechSynthesisVoice | null,
+  ): Promise<void> =>
     new Promise((resolve, reject) => {
       const u = new SpeechSynthesisUtterance(text);
       u.volume = DEFAULT_SPEAK_VOLUME;
       u.rate = rate;
       u.pitch = 1;
-      const voice = pickAuVoice(synth.getVoices());
-      if (voice) {
-        u.voice = voice;
-        u.lang = voice.lang || "en-AU";
-      } else {
-        u.lang = "en-AU";
-      }
+      u.lang = lang;
+      if (voice) u.voice = voice;
       u.onend = () => resolve();
       u.onerror = (ev) => {
         if (ev.error === "canceled" || ev.error === "interrupted") {
           resolve();
           return;
         }
-        reject(new Error(ev.error || SPEECH_UNAVAILABLE));
+        reject(new Error(friendlySpeechError(ev.error)));
       };
       if (synth.paused) synth.resume();
       synth.speak(u);
@@ -201,28 +219,18 @@ export function createWebSpeechEngine(
         synth.pause();
         synth.resume();
       }, 9000);
+      const voice = pickAuVoice(synth.getVoices());
       try {
-        await speakUtterance(text, opts.rate);
+        await speakUtterance(text, opts.rate, voice?.lang || "en-AU", voice);
       } catch (err) {
         const message = err instanceof Error ? err.message : "";
-        if (message === "language-unavailable" || message === "voice-unavailable") {
-          const u = new SpeechSynthesisUtterance(text);
-          u.volume = DEFAULT_SPEAK_VOLUME;
-          u.rate = opts.rate;
-          u.pitch = 1;
-          u.lang = "en";
-          await new Promise<void>((resolve, reject) => {
-            u.onend = () => resolve();
-            u.onerror = (ev) => {
-              if (ev.error === "canceled" || ev.error === "interrupted") {
-                resolve();
-                return;
-              }
-              reject(new Error(ev.error || SPEECH_UNAVAILABLE));
-            };
-            synth.speak(u);
-          });
-          return;
+        if (message === SPEECH_UNAVAILABLE) {
+          try {
+            await speakUtterance(text, opts.rate, "en", null);
+            return;
+          } catch {
+            throw new Error(SPEECH_UNAVAILABLE);
+          }
         }
         throw err;
       } finally {
