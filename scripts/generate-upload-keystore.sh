@@ -54,7 +54,7 @@ until you request an upload-key reset from Google.
 | Algorithm | RSA 2048 |
 | Validity | $VALIDITY_DAYS days |
 | Distinguished name | $DNAME |
-| Application id | \`com.chippystoolbox.app\` |
+| Application id | \`com.josh12891.tradiestoolbox\` |
 | Package / Play app | Tradies Toolbox |
 
 Gradle reads \`android/keystore.properties\` (copy of \`android/keystore.properties.example\`).

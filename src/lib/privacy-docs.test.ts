@@ -18,7 +18,7 @@ describe("GitHub Pages privacy policy", () => {
     expect(appCopy).not.toMatch(/className=/);
     expect(appCopy).toContain("Joshua Pearson");
     expect(appCopy).toContain("josh@pearsonindustries.com.au");
-    expect(appCopy).toContain("com.chippystoolbox.app");
+    expect(appCopy).toContain("com.josh12891.tradiestoolbox");
   });
 
   it("documents the public Pages URL on the docs landing page and in README", () => {

@@ -11,14 +11,18 @@ function read(rel: string) {
 }
 
 describe("Play release AAB wiring", () => {
-  it("keeps applicationId com.chippystoolbox.app", () => {
+  it("keeps applicationId com.josh12891.tradiestoolbox", () => {
     const gradle = read("android/app/build.gradle");
     const cap = JSON.parse(read("capacitor.config.json")) as { appId: string };
     const strings = read("android/app/src/main/res/values/strings.xml");
-    expect(cap.appId).toBe("com.chippystoolbox.app");
-    expect(gradle).toContain('applicationId "com.chippystoolbox.app"');
-    expect(gradle).toContain('namespace "com.chippystoolbox.app"');
-    expect(strings).toContain("com.chippystoolbox.app");
+    expect(cap.appId).toBe("com.josh12891.tradiestoolbox");
+    expect(gradle).toContain('applicationId "com.josh12891.tradiestoolbox"');
+    expect(gradle).toContain('namespace "com.josh12891.tradiestoolbox"');
+    expect(gradle).not.toContain('applicationId "com.chippystoolbox.app"');
+    expect(strings).toContain("com.josh12891.tradiestoolbox");
+    expect(read("android/app/src/main/java/com/josh12891/tradiestoolbox/MainActivity.java")).toContain(
+      "package com.josh12891.tradiestoolbox;",
+    );
   });
 
   it("declares Play Billing in the app manifest", () => {
@@ -43,7 +47,8 @@ describe("Play release AAB wiring", () => {
   it("documents first-AAB upload then IAP create", () => {
     const readme = read("README.md");
     expect(UNLOCK_PRODUCT_ID).toBe("tradies_toolbox_setout_unlock");
-    expect(readme).toContain("com.chippystoolbox.app");
+    expect(readme).toContain("com.josh12891.tradiestoolbox");
+    expect(readme).not.toMatch(/applicationId "com\.chippystoolbox\.app"/);
     expect(readme).toContain("com.android.vending.BILLING");
     expect(readme).toContain("bundleRelease");
     expect(readme).toContain(UNLOCK_PRODUCT_ID);
@@ -53,7 +58,7 @@ describe("Play release AAB wiring", () => {
     expect(readme).toContain("Internal testing");
     expect(readme).toContain("keystore.properties");
     expect(readme).toContain(
-      "https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.0-internal/tradies-toolbox-1.0.aab",
+      "https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.0-internal-b/tradies-toolbox-1.0.aab",
     );
   });
 });

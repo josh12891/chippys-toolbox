@@ -1,4 +1,4 @@
-package com.chippystoolbox.app;
+package com.josh12891.tradiestoolbox;
 
 import com.getcapacitor.BridgeActivity;
 
