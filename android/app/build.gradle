@@ -7,12 +7,12 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    // First Play upload locks this id. Keep com.chippystoolbox.app even if Console
-    // showed com.josh12891.tradiestoolbox — do not rename unless Play rejects the AAB.
-    namespace "com.chippystoolbox.app"
+    // Play Console listing is com.josh12891.tradiestoolbox — first accepted AAB
+    // locks this id. Do not revert to com.chippystoolbox.app.
+    namespace "com.josh12891.tradiestoolbox"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.chippystoolbox.app"
+        applicationId "com.josh12891.tradiestoolbox"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

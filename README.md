@@ -7,7 +7,7 @@ This is a **Capacitor + Vite + React + TypeScript SPA**. All web assets are bund
 | | |
 | --- | --- |
 | Display name | Tradies Toolbox |
-| Package / app ID | `com.chippystoolbox.app` |
+| Package / app ID | `com.josh12891.tradiestoolbox` |
 | Seller / publisher | Joshua Pearson (Apple Individual) |
 | Support email | josh@pearsonindustries.com.au |
 | npm name | `chippys-toolbox` |
@@ -94,7 +94,7 @@ npx cap open android
 npx cap open ios
 ```
 
-- **appId:** `com.chippystoolbox.app` (first Play upload locks this — do **not** rename to `com.josh12891.tradiestoolbox` unless Play rejects the AAB)
+- **appId:** `com.josh12891.tradiestoolbox` (Play Console listing id — first accepted AAB locks this; `com.chippystoolbox.app` was rejected)
 - **appName:** `Tradies Toolbox`
 - **webDir:** `dist` (see `capacitor.config.json`)
 - Platforms live in `android/` and `ios/` and are committed so store builds are reproducible.
@@ -134,7 +134,7 @@ npm run android:bundle
 ## Xcode
 
 1. On macOS, `npm run cap:ios` (or open `ios/App/App.xcworkspace`).
-2. Select the **App** target. Bundle ID must stay `com.chippystoolbox.app`.
+2. Select the **App** target. Bundle ID must stay `com.josh12891.tradiestoolbox`.
 3. Choose your development team under *Signing & Capabilities*.
 4. Display name: **Tradies Toolbox**.
 5. Archive and upload with Transporter / Organizer.
@@ -145,9 +145,9 @@ iOS project files can be generated on Linux; **signing, Simulator and App Store 
 
 Play Console is live. Creating IAP `tradies_toolbox_setout_unlock` is **blocked until an artifact that declares `com.android.vending.BILLING` is uploaded**. Billing then only works if **all four** of these are true: the one-time product exists and is **Active**, the tester Gmail is a **license tester**, the signed AAB is on the **internal testing** track, and the phone installed the app **from that Play opt-in link** (not a sideloaded debug APK).
 
-Package / application id: **`com.chippystoolbox.app`** · Product: **`tradies_toolbox_setout_unlock`** · **$9.99 AUD** one-time.
+Package / application id: **`com.josh12891.tradiestoolbox`** · Product: **`tradies_toolbox_setout_unlock`** · **$9.99 AUD** one-time.
 
-Console may have shown `com.josh12891.tradiestoolbox`. **Keep `com.chippystoolbox.app` on this first AAB** — the first upload locks the application id. Do not rename unless Play rejects the file.
+Play Console rejected `com.chippystoolbox.app` with *“Your APK or Android App Bundle needs to have the package name com.josh12891.tradiestoolbox”*. This AAB matches that listing id. IAP product id stays `tradies_toolbox_setout_unlock`.
 
 The app manifest (and `@capgo/native-purchases`) includes `com.android.vending.BILLING`. Gradle `bundleRelease` produces the signed AAB when `android/keystore.properties` is present.
 
@@ -155,9 +155,9 @@ The app manifest (and `@capgo/native-purchases`) includes `com.android.vending.B
 
 1. Download the signed AAB (no login wall on this public repo):
 
-   **https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.0-internal/tradies-toolbox-1.0.aab**
+   **https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.0-internal-b/tradies-toolbox-1.0.aab**
 
-   Tag `v1.0.0-internal` · asset **`tradies-toolbox-1.0.aab`** · package `com.chippystoolbox.app` · versionCode `1` · versionName `1.0`. Or rebuild with `npm run android:bundle`. The Play **upload keystore is not** on that release — keep it in a password manager only.
+   Tag `v1.0.0-internal-b` · asset **`tradies-toolbox-1.0.aab`** · package `com.josh12891.tradiestoolbox` · versionCode `1` · versionName `1.0`. Or rebuild with `npm run android:bundle`. The Play **upload keystore is not** on that release — keep it in a password manager only.
 2. [Play Console](https://play.google.com/console) → developer **Australian Dynamics** → app **Tradies Toolbox**.
 3. Confirm **App content → Privacy policy** is already **https://josh12891.github.io/chippys-toolbox/privacy.html**.
 4. **Test and release** → **Testing** → **Internal testing**.
@@ -201,7 +201,7 @@ Internal testers **are charged for IAP** unless they are also license testers. Y
 Same plugin and product id: **`tradies_toolbox_setout_unlock`** · Non-Consumable · **$9.99 AUD**. Apple Developer is live; you can create the IAP now. CI still does not run Xcode.
 
 1. In [App Store Connect](https://appstoreconnect.apple.com) accept the **Paid Applications Agreement** (Business → Agreements) so IAPs can be created.
-2. Open the **Tradies Toolbox** app record (`com.chippystoolbox.app`) → **Monetization** → **In-App Purchases** → **Create**.
+2. Open the **Tradies Toolbox** app record (`com.josh12891.tradiestoolbox`) → **Monetization** → **In-App Purchases** → **Create**.
 3. Type: **Non-Consumable**. Product ID: `tradies_toolbox_setout_unlock`.
 4. Reference name: Set-out unlock. Localization (English AU): display name + description matching the Play listing.
 5. Price Schedule: Australia **$9.99 AUD** (or the tier that maps to 9.99 AUD). Availability: all countries you ship.
@@ -222,7 +222,7 @@ The same Capacitor plugin (`@capgo/native-purchases`) calls StoreKit 2 on iOS. R
 - [ ] Permissions: none required beyond Play Billing; speech uses OS TTS only
 - [ ] Offline: airplane-mode smoke test of all four tools (after an unlock or restore)
 - [ ] Stair disclaimer visible (NCC 2022 Housing Provisions 11.2 and AS 1657:2018 — soft hints, not a certificate)
-- [ ] Play: signed AAB `com.chippystoolbox.app` uploaded to **Internal testing** (unblocks IAP); product `tradies_toolbox_setout_unlock` Active at $9.99 AUD; license testers saved; testers installed from the opt-in link (not sideload)
+- [ ] Play: signed AAB `com.josh12891.tradiestoolbox` uploaded to **Internal testing** (unblocks IAP); product `tradies_toolbox_setout_unlock` Active at $9.99 AUD; license testers saved; testers installed from the opt-in link (not sideload)
 - [ ] Play upload keystore + `UPLOAD_KEYSTORE.md` saved in a password manager (not in git)
 - [ ] Play: on-device Unlock sheet is a **test** purchase; Restore purchases returns the entitlement after reinstall
 - [ ] App Store Connect non-consumable `tradies_toolbox_setout_unlock` at $9.99 AUD; sandbox restore
