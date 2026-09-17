@@ -3,7 +3,7 @@ import { ArrowRight, Layers, Lock, Ruler } from "lucide-react";
 import { BrandMark, StairsIcon, TriangleIcon } from "@/components/brand-mark";
 import { Badge } from "@/components/ui/badge";
 import { useUnlock } from "@/components/unlock-provider";
-import { toolRequiresUnlock, type ToolId } from "@/lib/unlock";
+import { paidToolHomeLabel, type ToolId } from "@/lib/unlock";
 import { cn } from "@/lib/utils";
 
 const TOOLS = [
@@ -38,7 +38,7 @@ const TOOLS = [
 ];
 
 export function HomePage() {
-  const { unlocked } = useUnlock();
+  const { unlocked, freeUsesConsumed } = useUnlock();
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-4 py-8 sm:px-6">
@@ -56,13 +56,13 @@ export function HomePage() {
           Concrete, stairs, running measurements and a 90° triangle — built for the tape, not the office.
         </p>
         <p className="mt-2 max-w-md text-sm leading-normal text-subtle">
-          Triangle and running measurements are free. Stairs, concrete and set-out unlock once for $9.99 AUD.
+          Triangle and running measurements are free. Stairs and concrete each include one free calculation; unlock both forever for $9.99 AUD.
         </p>
       </header>
 
       <nav aria-label="Tools" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {TOOLS.map((tool) => {
-          const locked = toolRequiresUnlock(tool.id) && !unlocked;
+          const badge = paidToolHomeLabel(tool.id, unlocked, freeUsesConsumed);
           return (
             <Link
               key={tool.to}
@@ -80,7 +80,9 @@ export function HomePage() {
                   <h2 className="font-display text-xl font-semibold text-ink">
                     {tool.title}
                   </h2>
-                  {locked ? (
+                  {badge === "try-once" ? (
+                    <Badge variant="primary">Try once</Badge>
+                  ) : badge === "unlock" ? (
                     <Badge variant="default">
                       <Lock className="mr-1 size-3" aria-hidden="true" />
                       Unlock

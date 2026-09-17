@@ -11,9 +11,10 @@ export function AboutPage() {
         Everything runs on the device. There is no login and no live website wrap.
       </p>
       <p className="mt-4 text-base leading-relaxed text-muted">
-        Triangle calculator and running measurements are free. Stair set-out, concrete
-        volume and the set-out pack unlock once for $9.99 AUD through Google Play or the
-        App Store. No ads, offline, metric. Web and debug builds keep a local unlock stub.
+        Triangle calculator and running measurements are free. Stair set-out and concrete
+        volume each include one free calculation on this device. Unlock both forever for
+        $9.99 AUD through Google Play or the App Store. No ads, offline, metric. Web and
+        debug builds keep a local unlock stub.
       </p>
       <p className="mt-4 text-base leading-relaxed text-muted">
         Stair checks follow NCC 2022 Housing Provisions 11.2 and AS 1657:2018 as a field

@@ -33,12 +33,14 @@ Freemium, **no ads**, offline, metric.
 
 | | |
 | --- | --- |
-| Free | Triangle calculator, running measurements |
-| Paid unlock | Stair set-out, concrete volume, and set-out (same one-time purchase) |
-| Price | **$9.99 AUD** one-time |
+| Free forever | Triangle calculator, running measurements |
+| One free calculation each | Stair set-out, concrete volume (independent one-shot on the device) |
+| Paid unlock | After a tool’s free calculation, the same **$9.99 AUD** one-time purchase unlocks **both** stairs and concrete forever |
 | Product id | `tradies_toolbox_setout_unlock` (non-consumable / managed product) |
 
-Native Android and iOS builds use **[@capgo/native-purchases](https://github.com/Cap-go/capacitor-native-purchases)** — Play Billing on Android and StoreKit 2 on iOS — for product id `tradies_toolbox_setout_unlock`. A successful purchase (or restore) caches an on-device flag (`localStorage` key `tradies-toolbox.unlock.v1`) so stairs and concrete stay available **offline**. **Restore purchases** queries the store account (required by Apple).
+Native Android and iOS builds use **[@capgo/native-purchases](https://github.com/Cap-go/capacitor-native-purchases)** — Play Billing on Android and StoreKit 2 on iOS — for product id `tradies_toolbox_setout_unlock`. A successful purchase (or restore) caches an on-device flag (`localStorage` key `tradies-toolbox.unlock.v1`) so stairs and concrete stay available **offline**. Each paid tool also stores whether its free calculation was used (`tradies-toolbox.free-uses.v1`). **Restore purchases** queries the store account (required by Apple).
+
+Home labels stairs/concrete **Try once** while that tool still has its free calculation. Opening the tool shows the real UI (not a blank paywall). After the first successful result, an unlock CTA appears; a second calculation stays gated until purchase. Unlocking either tool unlocks both.
 
 Web and debug builds keep the **local unlock stub** (same flag, not billed) so the paid UI can be reviewed without Play Console or App Store Connect. Production native builds do not use that stub when billing is available.
 
@@ -190,8 +192,8 @@ Internal testers **are charged for IAP** unless they are also license testers. Y
 
 1. Real device with Play Store (not a Play-less emulator). Uninstall any old sideloaded copy first.
 2. Install from the internal-test opt-in link.
-3. Open **Stair set-out** or **Concrete volume** → **Unlock** (`tradies_toolbox_setout_unlock`). You should see a Play sheet with a **test** card / “this is a test purchase” notice, not a live charge.
-4. After purchase, stairs and concrete stay unlocked offline (on-device flag). **Restore purchases** re-reads the Play account if the app is reinstalled.
+3. Open **Stair set-out** — the real tool, not a paywall. Enter a height, tap **Calculate**. The first result shows, then an unlock CTA (`tradies_toolbox_setout_unlock`). A second Calculate stays gated until purchase. Concrete has its own independent free calculation.
+4. From the CTA, Unlock. You should see a Play sheet with a **test** card / “this is a test purchase” notice, not a live charge. After purchase, stairs and concrete stay unlocked offline (on-device flag) and recalculate live. **Restore purchases** re-reads the Play account if the app is reinstalled.
 5. If the sheet says the item is unavailable: product not Active, AAB package id mismatch, or wait for the product to publish after the first artifact. If you are charged for real: that Gmail is missing from **License testing**.
 
 `@capgo/native-purchases` uses Play Billing 8 directly (no RevenueCat). The merged release manifest includes `com.android.vending.BILLING` (declared in `android/app/src/main/AndroidManifest.xml` and again by the plugin).
