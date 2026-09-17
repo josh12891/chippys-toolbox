@@ -15,7 +15,17 @@ import {
   type BillingActionResult,
   type BillingKind,
 } from "@/lib/billing";
-import { readUnlockedFlag, UNLOCK_PRICE_LABEL } from "@/lib/unlock";
+import {
+  canUseTool,
+  consumeFreeUse,
+  emptyFreeUseCounts,
+  readFreeUsesConsumed,
+  readUnlockedFlag,
+  UNLOCK_PRICE_LABEL,
+  type FreeUseCounts,
+  type PaidToolId,
+  type ToolId,
+} from "@/lib/unlock";
 
 const listeners = new Set<() => void>();
 
@@ -30,16 +40,41 @@ function emit() {
   listeners.forEach((listener) => listener());
 }
 
-function getSnapshot() {
+function getUnlockSnapshot() {
   return readUnlockedFlag();
 }
 
-function getServerSnapshot() {
+function getUnlockServerSnapshot() {
   return false;
+}
+
+function snapshotFreeUses(counts: FreeUseCounts): string {
+  return `${counts.stairs}:${counts.concrete}`;
+}
+
+function parseFreeUsesSnapshot(raw: string): FreeUseCounts {
+  const [stairsRaw, concreteRaw] = raw.split(":");
+  const stairs = Number(stairsRaw);
+  const concrete = Number(concreteRaw);
+  return {
+    stairs: Number.isFinite(stairs) ? stairs : 0,
+    concrete: Number.isFinite(concrete) ? concrete : 0,
+  };
+}
+
+function getFreeUsesSnapshot() {
+  return snapshotFreeUses(readFreeUsesConsumed());
+}
+
+function getFreeUsesServerSnapshot() {
+  return snapshotFreeUses(emptyFreeUseCounts());
 }
 
 type UnlockContextValue = {
   unlocked: boolean;
+  freeUsesConsumed: FreeUseCounts;
+  canCalculateTool: (id: ToolId) => boolean;
+  consumeToolFreeUse: (id: PaidToolId) => boolean;
   kind: BillingKind;
   priceLabel: string;
   busy: boolean;
@@ -52,7 +87,13 @@ const UnlockContext = createContext<UnlockContextValue | null>(null);
 
 export function UnlockProvider({ children }: { children: ReactNode }) {
   const billing = useMemo(() => createUnlockBilling(), []);
-  const unlocked = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const unlocked = useSyncExternalStore(subscribe, getUnlockSnapshot, getUnlockServerSnapshot);
+  const freeUsesKey = useSyncExternalStore(
+    subscribe,
+    getFreeUsesSnapshot,
+    getFreeUsesServerSnapshot,
+  );
+  const freeUsesConsumed = useMemo(() => parseFreeUsesSnapshot(freeUsesKey), [freeUsesKey]);
   const [kind, setKind] = useState<BillingKind>("stub");
   const [priceLabel, setPriceLabel] = useState(UNLOCK_PRICE_LABEL);
   const [busy, setBusy] = useState(false);
@@ -101,11 +142,25 @@ export function UnlockProvider({ children }: { children: ReactNode }) {
     }
   }, [billing]);
 
+  const canCalculateTool = useCallback(
+    (id: ToolId) => canUseTool(id, unlocked, freeUsesConsumed),
+    [freeUsesConsumed, unlocked],
+  );
+
+  const consumeToolFreeUse = useCallback((id: PaidToolId) => {
+    const consumed = consumeFreeUse(id);
+    emit();
+    return consumed;
+  }, []);
+
   const footnote = billingFootnote(kind, billing.platformName);
 
   const value = useMemo(
     () => ({
       unlocked,
+      freeUsesConsumed,
+      canCalculateTool,
+      consumeToolFreeUse,
       kind,
       priceLabel,
       busy,
@@ -113,7 +168,18 @@ export function UnlockProvider({ children }: { children: ReactNode }) {
       purchaseUnlock,
       restorePurchases,
     }),
-    [busy, footnote, kind, priceLabel, purchaseUnlock, restorePurchases, unlocked],
+    [
+      busy,
+      canCalculateTool,
+      consumeToolFreeUse,
+      footnote,
+      freeUsesConsumed,
+      kind,
+      priceLabel,
+      purchaseUnlock,
+      restorePurchases,
+      unlocked,
+    ],
   );
 
   return <UnlockContext.Provider value={value}>{children}</UnlockContext.Provider>;

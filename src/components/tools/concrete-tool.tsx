@@ -5,6 +5,8 @@ import { NumberField, Segmented } from "@/components/fields";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FootingDiagram, PierDiagram, SlabDiagram, VolumeBanner } from "@/components/diagrams";
+import { UnlockCta } from "@/components/unlock-gate";
+import { usePaidToolCommit } from "@/components/use-paid-tool-commit";
 import {
   onePierVolumeM3,
   pierVolumeM3,
@@ -34,15 +36,17 @@ function SlabFields({
   unit,
   onChange,
   onRemove,
+  volume,
 }: {
   index: number;
   slab: SlabInput;
   unit: LengthUnit;
   onChange: (s: SlabInput) => void;
   onRemove?: () => void;
+  volume?: number | null;
 }) {
   const set = (key: keyof SlabInput, v: string) => onChange({ ...slab, [key]: v });
-  const vol = slabVolumeM3(slab, unit);
+  const vol = volume === undefined ? slabVolumeM3(slab, unit) : volume;
   return (
     <Card className="p-4">
       <div className="mb-3 flex items-center justify-between gap-2">
@@ -142,6 +146,34 @@ export function ConcreteTool() {
     return bits;
   }, [footingVol, piers, slabVols]);
 
+  const liveSnapshot = useMemo(
+    () => ({
+      slabVols,
+      footingVol,
+      piers,
+      pierVolumes: filledPiers.map((p) => ({
+        i: p.i,
+        volume: onePierVolumeM3(dia, unit, p.depth),
+      })),
+      total,
+      jobBits,
+    }),
+    [dia, filledPiers, footingVol, jobBits, piers, slabVols, total, unit],
+  );
+
+  const { displayed, needsCommit, showUnlockCta, commitError, calculate } = usePaidToolCommit(
+    "concrete",
+    total > 0 ? liveSnapshot : null,
+    (value) => value.total > 0,
+  );
+
+  const shownSlabs = needsCommit ? (displayed?.slabVols ?? []) : slabVols;
+  const shownFooting = needsCommit ? (displayed?.footingVol ?? null) : footingVol;
+  const shownPiers = needsCommit ? (displayed?.piers ?? null) : piers;
+  const shownPierVolumes = needsCommit ? (displayed?.pierVolumes ?? []) : null;
+  const shownTotal = needsCommit ? (displayed?.total ?? 0) : total;
+  const shownBits = needsCommit ? (displayed?.jobBits ?? []) : jobBits;
+
   return (
     <AppShell
       title="Concrete volume"
@@ -178,6 +210,7 @@ export function ConcreteTool() {
               index={i + 1}
               slab={slab}
               unit={unit}
+              volume={needsCommit ? (shownSlabs[i] ?? null) : undefined}
               onChange={(s) =>
                 setSlabs((prev) => prev.map((p, idx) => (idx === i ? s : p)))
               }
@@ -241,7 +274,7 @@ export function ConcreteTool() {
               linealM={parseNum(fl)}
               unit={unit}
             />
-            <VolumeBanner caption="Footing volume" volume={footingVol} />
+            <VolumeBanner caption="Footing volume" volume={shownFooting} />
           </div>
         </Card>
       ) : null}
@@ -354,7 +387,11 @@ export function ConcreteTool() {
                     depthM={p.depth}
                     scaleDiaM={scaleDiaM}
                     scaleDepthM={scaleDepthM}
-                    volume={onePierVolumeM3(dia, unit, p.depth)}
+                    volume={
+                      shownPierVolumes
+                        ? (shownPierVolumes.find((item) => item.i === p.i)?.volume ?? null)
+                        : onePierVolumeM3(dia, unit, p.depth)
+                    }
                   />
                 </li>
               ))}
@@ -368,13 +405,40 @@ export function ConcreteTool() {
             <VolumeBanner
               caption={
                 filledPiers.length
-                  ? `${filledPiers.length} pier${filledPiers.length === 1 ? "" : "s"} · ${piers ? `${piers.totalM} m` : ""}`
+                  ? `${filledPiers.length} pier${filledPiers.length === 1 ? "" : "s"} · ${shownPiers ? `${shownPiers.totalM} m` : ""}`
                   : "Pier volume"
               }
-              volume={piers?.volumeM3 ?? null}
+              volume={shownPiers?.volumeM3 ?? null}
             />
           </div>
         </Card>
+      ) : null}
+
+      {needsCommit ? (
+        <div className="mt-4">
+          <Button
+            type="button"
+            size="lg"
+            className="w-full"
+            onClick={() =>
+              calculate("Enter slab, footing or pier sizes to calculate.")
+            }
+          >
+            Calculate
+          </Button>
+          <p className="mt-2 text-sm text-muted">
+            One free concrete volume on this device. Unlock once for stairs and concrete forever.
+          </p>
+          {commitError ? (
+            <p className="mt-2 text-sm text-danger">{commitError}</p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {showUnlockCta ? (
+        <div className="mt-4">
+          <UnlockCta afterWin={Boolean(displayed)} toolLabel="concrete volume" />
+        </div>
       ) : null}
 
       <Card className="sticky bottom-3 mt-5 bg-primary p-5 text-primary-fg">
@@ -382,29 +446,29 @@ export function ConcreteTool() {
           Job total
         </p>
         <p className="mt-1 font-display text-4xl font-semibold tabular-nums leading-none">
-          {formatM3(total)}{" "}
+          {formatM3(shownTotal)}{" "}
           <span className="text-2xl font-medium">m³</span>
         </p>
         <p className="mt-3 text-sm text-primary-fg/80">
-          {jobBits.length ? jobBits.join("  ·  ") : "Enter sizes to tally slabs, footings and piers."}
+          {shownBits.length ? shownBits.join("  ·  ") : "Enter sizes to tally slabs, footings and piers."}
         </p>
-        {total > 0 ? (
+        {shownTotal > 0 ? (
           <p className="mt-2 text-sm text-primary-fg/80">
-            Order {formatM3(roundM3Order(total))} m³ if rounding up to the nearest 0.2.
+            Order {formatM3(roundM3Order(shownTotal))} m³ if rounding up to the nearest 0.2.
           </p>
         ) : null}
         <div className="mt-3 flex flex-wrap gap-2">
-          {slabVols.some(Boolean) ? (
+          {shownSlabs.some(Boolean) ? (
             <span className="rounded-full bg-primary-fg/15 px-2.5 py-1 text-xs font-medium">
               Slabs
             </span>
           ) : null}
-          {footingVol ? (
+          {shownFooting ? (
             <span className="rounded-full bg-primary-fg/15 px-2.5 py-1 text-xs font-medium">
               Footings
             </span>
           ) : null}
-          {piers ? (
+          {shownPiers ? (
             <span className="rounded-full bg-primary-fg/15 px-2.5 py-1 text-xs font-medium">
               Piers
             </span>

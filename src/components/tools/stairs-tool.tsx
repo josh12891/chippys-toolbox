@@ -1,9 +1,12 @@
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
 import { NumberField, Segmented } from "@/components/fields";
+import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StairDiagram } from "@/components/diagrams";
+import { UnlockCta } from "@/components/unlock-gate";
+import { usePaidToolCommit } from "@/components/use-paid-tool-commit";
 import { parseNum, formatMm } from "@/lib/format";
 import {
   STANDARDS,
@@ -20,7 +23,7 @@ export function StairsTool() {
   const [overall, setOverall] = useState("");
   const [width, setWidth] = useState("900");
 
-  const result = useMemo(() => {
+  const liveResult = useMemo(() => {
     const h = parseNum(height);
     if (h == null || h <= 0) return null;
     return setOutStairs({
@@ -32,6 +35,9 @@ export function StairsTool() {
       stairWidthMm: parseNum(width) ?? 900,
     });
   }, [goingMode, height, overall, standard, tread, width]);
+
+  const { displayed: result, needsCommit, showUnlockCta, commitError, calculate } =
+    usePaidToolCommit("stairs", liveResult, (value) => value != null);
 
   const std = STANDARDS[standard];
 
@@ -114,6 +120,31 @@ export function StairsTool() {
           ) : null}
         </div>
       </Card>
+
+      {needsCommit ? (
+        <div className="mb-4">
+          <Button
+            type="button"
+            size="lg"
+            className="w-full"
+            onClick={() => calculate("Enter the overall height to calculate.")}
+          >
+            Calculate
+          </Button>
+          <p className="mt-2 text-sm text-muted">
+            One free stair set-out on this device. Unlock once for stairs and concrete forever.
+          </p>
+          {commitError ? (
+            <p className="mt-2 text-sm text-danger">{commitError}</p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {showUnlockCta && !result ? (
+        <div className="mb-4">
+          <UnlockCta toolLabel="stair set-out" />
+        </div>
+      ) : null}
 
       <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sheet">
         <StairDiagram result={result} />
@@ -211,6 +242,12 @@ export function StairsTool() {
             ))}
           </ul>
         </Card>
+      ) : null}
+
+      {showUnlockCta && result ? (
+        <div className="mt-4">
+          <UnlockCta afterWin toolLabel="stair set-out" />
+        </div>
       ) : null}
 
       <Card className="mt-4">
