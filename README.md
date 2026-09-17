@@ -22,7 +22,7 @@ The four tools sit equally on the home screen (no carpenter-only ranking):
 
 1. **Concrete volume** — slabs (multi), strip footings and piers; mm or m; job total in m³; order quantity rounded up to 0.2 m³; diagrams.
 2. **Stair set-out** — NCC Housing and AS 1657; auto / manual tread / overall run; rise, going, 2R+G, pitch, landings; max 18 risers per flight. NCC/AS figures are **soft on-site hints**, not a hard compliance stop; confirm with the certifier.
-3. **Running measurements** — ends vs between; members / spaces / max gap; centres, gaps and marks; **Play / Stop** speech read-out (`en-AU`).
+3. **Running measurements** — ends vs between; members / spaces / max gap; centres, gaps and marks; **Play / Stop** speech read-out (`en-AU`; native Android TTS in the WebView, Web Speech in the browser).
 4. **Triangle calculator** — right angle from sides and/or angles; diagram; 3-4-5 (and 5-12-13) detect.
 
 No login. About ships in-app. The store-facing privacy policy is `public/privacy.html` (copied to `docs/privacy.html` for GitHub Pages).
@@ -219,7 +219,7 @@ The same Capacitor plugin (`@capgo/native-purchases`) calls StoreKit 2 on iOS. R
 - [ ] GitHub Pages: **Settings → Pages → Deploy from a branch → `main` / `/docs`**. Confirm **https://josh12891.github.io/chippys-toolbox/privacy.html** loads; paste that URL into Play and App Store Connect; support **josh@pearsonindustries.com.au**
 - [ ] Screenshots: home, concrete, stairs, running, triangle
 - [ ] Age rating: tools/reference, no user-generated content
-- [ ] Permissions: none required beyond Play Billing; speech uses OS TTS only
+- [ ] Permissions: none required beyond Play Billing; Play marks uses OS text-to-speech (native `TextToSpeech` on Android, Web Speech in the browser) on the media volume stream
 - [ ] Offline: airplane-mode smoke test of all four tools (after an unlock or restore)
 - [ ] Stair disclaimer visible (NCC 2022 Housing Provisions 11.2 and AS 1657:2018 — soft hints, not a certificate)
 - [ ] Play: signed AAB `com.josh12891.tradiestoolbox` uploaded to **Internal testing** (unblocks IAP); product `tradies_toolbox_setout_unlock` Active at $9.99 AUD; license testers saved; testers installed from the opt-in link (not sideload)
