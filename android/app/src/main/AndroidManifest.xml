@@ -37,7 +37,11 @@
          tradies_toolbox_setout_unlock. Also merged from @capgo/native-purchases. -->
     <uses-permission android:name="com.android.vending.BILLING" />
 
+    <!-- Android 11+ package visibility: native TTS (Play marks) and Play Billing. -->
     <queries>
         <package android:name="com.android.vending" />
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
     </queries>
 </manifest>

@@ -39,6 +39,21 @@ describe("Play release AAB wiring", () => {
     expect(manifest).toContain('android:name="com.android.vending.BILLING"');
   });
 
+  it("declares TTS engine visibility so Play marks can speak on Android 11+", () => {
+    const manifest = read("android/app/src/main/AndroidManifest.xml");
+    const activity = read(
+      "android/app/src/main/java/com/josh12891/tradiestoolbox/MainActivity.java",
+    );
+    const plugin = read(
+      "android/app/src/main/java/com/josh12891/tradiestoolbox/SiteTtsPlugin.java",
+    );
+    expect(manifest).toContain("android.intent.action.TTS_SERVICE");
+    expect(activity).toContain("registerPlugin(SiteTtsPlugin.class)");
+    expect(plugin).toContain('name = "SiteTts"');
+    expect(plugin).toContain("USAGE_MEDIA");
+    expect(plugin).toContain("STREAM_MUSIC");
+  });
+
   it("wires release signing from gitignored keystore.properties", () => {
     const gradle = read("android/app/build.gradle");
     const example = read("android/keystore.properties.example");

@@ -33,6 +33,7 @@ export function RunningTool() {
   const [face, setFace] = useState<Face>("left");
   const [pace, setPace] = useState<Pace>("site");
   const [status, setStatus] = useState<"idle" | "speaking" | "paused">("idle");
+  const [speakError, setSpeakError] = useState<string | null>(null);
   const handle = useRef<SpeakHandle | null>(null);
   const signal = useRef({ cancelled: false });
 
@@ -95,9 +96,9 @@ export function RunningTool() {
   }, []);
 
   const play = async () => {
-    if (typeof window === "undefined" || !window.speechSynthesis) return;
     if (!lines.length) return;
     if (status === "paused") {
+      setSpeakError(null);
       handle.current?.resume();
       setStatus("speaking");
       return;
@@ -105,6 +106,7 @@ export function RunningTool() {
     stop();
     const sig = { cancelled: false };
     signal.current = sig;
+    setSpeakError(null);
     setStatus("speaking");
     const h = speakLines(lines, {
       ...PACE[pace],
@@ -113,8 +115,13 @@ export function RunningTool() {
     handle.current = h;
     try {
       await h.done;
-    } catch {
-      // Headless browsers and locked audio contexts fail quietly.
+    } catch (err) {
+      if (sig.cancelled) return;
+      setSpeakError(
+        err instanceof Error
+          ? err.message
+          : "Speech is not available. Check the device volume and that text-to-speech is installed.",
+      );
     } finally {
       if (handle.current === h && !sig.cancelled) setStatus("idle");
     }
@@ -282,8 +289,13 @@ export function RunningTool() {
               </div>
               <p className="text-xs text-muted">
                 Speaks millimetres in site talk, with a {PACE[pace].gapMs / 1000}s
-                gap between marks.
+                gap between marks. Uses the device media volume.
               </p>
+              {speakError ? (
+                <p className="text-sm text-danger" role="alert">
+                  {speakError}
+                </p>
+              ) : null}
             </div>
           </Card>
 
