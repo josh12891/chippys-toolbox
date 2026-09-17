@@ -33,6 +33,9 @@ coverage
 *.jks
 *.mobileprovision
 android/local.properties
+android/keystore.properties
+UPLOAD_KEYSTORE.md
+android/UPLOAD_KEYSTORE.md
 ios/App/Pods
 ios/App/App/public
 android/.gradle

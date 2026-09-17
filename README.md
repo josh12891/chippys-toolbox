@@ -81,6 +81,7 @@ npm run assets       # regenerate icon/splash PNGs from the brand mark
 npm run cap:sync     # build web assets and copy into android/ + ios/
 npm run cap:android  # sync then open Android Studio
 npm run cap:ios      # sync then open Xcode (macOS)
+npm run android:bundle   # cap sync + signed Play AAB (needs keystore.properties)
 ```
 
 ## Capacitor workflow
@@ -93,7 +94,7 @@ npx cap open android
 npx cap open ios
 ```
 
-- **appId:** `com.chippystoolbox.app` (kept; bundle-id rename later if needed)
+- **appId:** `com.chippystoolbox.app` (first Play upload locks this — do **not** rename to `com.josh12891.tradiestoolbox` unless Play rejects the AAB)
 - **appName:** `Tradies Toolbox`
 - **webDir:** `dist` (see `capacitor.config.json`)
 - Platforms live in `android/` and `ios/` and are committed so store builds are reproducible.
@@ -104,9 +105,31 @@ Live reload against a packager is optional and **not** used for store binaries. 
 
 1. Install Android Studio with the Android SDK and a device/emulator.
 2. `npm run cap:android` (or open `android/` in Android Studio).
-3. Set a release keystore for Play (do not commit `.keystore` / `.jks` files).
-4. Product flavour / version: bump `versionCode` / `versionName` in `android/app/build.gradle`.
-5. Build a signed AAB: *Build → Generate Signed App Bundle*.
+3. Release signing uses `android/keystore.properties` + `android/upload-keystore.jks` (both gitignored). Copy `android/keystore.properties.example` and restore the upload key from your password manager — see **Release signing** below. Do **not** generate a second keystore if you already uploaded an AAB.
+4. Product flavour / version: bump `versionCode` / `versionName` in `android/app/build.gradle` for every Play update after `1` / `1.0`.
+5. Signed AAB from the CLI: `npm run android:bundle` (Gradle `bundleRelease`). In the IDE: *Build → Generate Signed App Bundle* with the same upload key.
+
+## Release signing (Play upload key)
+
+The first AAB uploaded to Play Console is signed with a **Play upload key**. Google Play App Signing then holds the app-signing key; later updates must use **this same upload keystore**.
+
+| File | Git |
+| --- | --- |
+| `android/keystore.properties.example` | committed |
+| `android/keystore.properties` | **gitignored** |
+| `android/upload-keystore.jks` | **gitignored** |
+| `UPLOAD_KEYSTORE.md` (alias + passwords) | **gitignored** |
+
+Local rebuild after you have saved the keystore:
+
+```bash
+# restore android/upload-keystore.jks and fill android/keystore.properties
+cp android/keystore.properties.example android/keystore.properties
+npm run android:bundle
+# android/app/build/outputs/bundle/release/app-release.aab
+```
+
+`npm run android:keystore` creates a **new** upload key. Use it only once, before the first Play upload. Never overwrite the `.jks` after Play has accepted an AAB. Keep `UPLOAD_KEYSTORE.md` and the `.jks` in a password manager (not in git).
 
 ## Xcode
 
@@ -118,24 +141,39 @@ Live reload against a packager is optional and **not** used for store binaries. 
 
 iOS project files can be generated on Linux; **signing, Simulator and App Store upload require a Mac**. This repo does not run Xcode or `pod install` in CI. StoreKit 2 (via `@capgo/native-purchases`) needs **iOS 15+**; the Xcode project and Podfile are set to that deployment target.
 
-## Google Play — product + internal testing (do this now)
+## Google Play — upload AAB, then create IAP (do this now)
 
-Play Console is live. Billing only works if **all four** of these are true: the one-time product exists and is **Active**, the tester Gmail is a **license tester**, the signed AAB is on the **internal testing** track, and the phone installed the app **from that Play opt-in link** (not a sideloaded debug APK).
+Play Console is live. Creating IAP `tradies_toolbox_setout_unlock` is **blocked until an artifact that declares `com.android.vending.BILLING` is uploaded**. Billing then only works if **all four** of these are true: the one-time product exists and is **Active**, the tester Gmail is a **license tester**, the signed AAB is on the **internal testing** track, and the phone installed the app **from that Play opt-in link** (not a sideloaded debug APK).
 
-Package: `com.chippystoolbox.app` · Product: **`tradies_toolbox_setout_unlock`** · **$9.99 AUD** one-time.
+Package / application id: **`com.chippystoolbox.app`** · Product: **`tradies_toolbox_setout_unlock`** · **$9.99 AUD** one-time.
 
-### 1. Create the one-time product
+Console may have shown `com.josh12891.tradiestoolbox`. **Keep `com.chippystoolbox.app` on this first AAB** — the first upload locks the application id. Do not rename unless Play rejects the file.
 
-1. [Play Console](https://play.google.com/console) → app **Tradies Toolbox** (`com.chippystoolbox.app`).
-2. If Play has not seen this package yet, upload a signed AAB first (Internal testing, below) — in-app products are often locked until the first artifact exists.
-3. **Monetize with Play** → **Products** → **In-app products** → **Create product** (or **Monetize** → **In-app products**).
-4. Product ID (cannot be changed later): `tradies_toolbox_setout_unlock`
-5. Type: **One-time product** (managed / non-consumable). **Not** a subscription.
-6. Name: Set-out unlock. Description: Stair set-out and concrete volume. One-time, no ads, works offline.
-7. Default price: **AUD 9.99**. Activate / **Active**.
-8. Paste the privacy URL from above into **App content** → **Privacy policy** if Play asks.
+The app manifest (and `@capgo/native-purchases`) includes `com.android.vending.BILLING`. Gradle `bundleRelease` produces the signed AAB when `android/keystore.properties` is present.
 
-### 2. License testers (so Unlock is not a real charge)
+### 1. Upload the signed AAB to Internal testing
+
+1. Download **`app-release.aab`** from this PR’s Cursor agent artifacts (or rebuild with `npm run android:bundle`). Package must be `com.chippystoolbox.app`, versionCode `1`, versionName `1.0`.
+2. [Play Console](https://play.google.com/console) → developer **Australian Dynamics** → app **Tradies Toolbox**.
+3. Confirm **App content → Privacy policy** is already **https://josh12891.github.io/chippys-toolbox/privacy.html**.
+4. **Test and release** → **Testing** → **Internal testing**.
+5. **Testers** tab → **Create email list** → add the Gmails that will install the app (up to 100) → Save. Feedback email: **josh@pearsonindustries.com.au**.
+6. **Releases** → **Create new release** → upload the signed **`.aab`** → Review → **Start rollout to Internal testing**.
+7. Copy the **Join on the web** / opt-in link. Testers open it while signed into that Gmail, tap **Become a tester**, then install **Tradies Toolbox** from the Play listing that link opens.
+
+First-time processing is usually minutes; the opt-in link can take a few hours. Play Billing **will not** run on a USB-sideloaded debug APK.
+
+### 2. Create the one-time product (after the AAB is accepted)
+
+Play unblocks in-app products once it has seen a BILLING artifact.
+
+1. Same app → **Monetize with Play** → **Products** → **In-app products** → **Create product** (or **Monetize** → **In-app products**).
+2. Product ID (cannot be changed later): `tradies_toolbox_setout_unlock`
+3. Type: **One-time product** (managed / non-consumable). **Not** a subscription.
+4. Name: Set-out unlock. Description: Stair set-out and concrete volume. One-time, no ads, works offline.
+5. Default price: **AUD 9.99**. Activate / **Active**.
+
+### 3. License testers (so Unlock is not a real charge)
 
 Internal testers **are charged for IAP** unless they are also license testers. Your Play publisher account is already a license tester.
 
@@ -143,18 +181,6 @@ Internal testers **are charged for IAP** unless they are also license testers. Y
 2. **Create list** (or pick an existing email list). Add every Gmail that will tap Unlock on a device, including Josh’s.
 3. **Save changes**. Propagation can take up to a couple of hours.
 4. On the test phone, Settings → Google / Play Store must be signed in as **that same Gmail**.
-
-### 3. Internal testing track (how testers install)
-
-Play Billing **will not** run on a USB-sideloaded debug APK. Testers must install from Play.
-
-1. `npm run cap:sync` then open `android/` in Android Studio.
-2. Create an upload keystore the first time (*Build → Generate Signed App Bundle*). Do **not** commit `.jks` / `.keystore`. Keep the passwords.
-3. Bump `versionCode` / `versionName` in `android/app/build.gradle` when you ship a new AAB (`1` / `1.0` is fine for the first upload).
-4. Play Console → **Test and release** → **Testing** → **Internal testing**.
-5. **Testers** tab → **Create email list** → add the same Gmails (up to 100) → Save. Feedback email: **josh@pearsonindustries.com.au**.
-6. Copy the **Join on the web** / opt-in link. Testers open it while signed into that Gmail, tap **Become a tester**, then install **Tradies Toolbox** from the Play Store listing that link opens.
-7. **Releases** → **Create new release** → upload the signed **.aab** → Review → **Start rollout to Internal testing**. First-time upload is usually available within minutes; the opt-in link can take a few hours the first time.
 
 ### 4. On-device purchase test
 
@@ -164,7 +190,7 @@ Play Billing **will not** run on a USB-sideloaded debug APK. Testers must instal
 4. After purchase, stairs and concrete stay unlocked offline (on-device flag). **Restore purchases** re-reads the Play account if the app is reinstalled.
 5. If the sheet says the item is unavailable: product not Active, AAB package id mismatch, or wait for the product to publish after the first artifact. If you are charged for real: that Gmail is missing from **License testing**.
 
-`@capgo/native-purchases` uses Play Billing 8 directly (no RevenueCat). The manifest includes `com.android.vending.BILLING`.
+`@capgo/native-purchases` uses Play Billing 8 directly (no RevenueCat). The merged release manifest includes `com.android.vending.BILLING` (declared in `android/app/src/main/AndroidManifest.xml` and again by the plugin).
 
 ## App Store Connect — StoreKit IAP (wired in this PR; archive still needs a Mac)
 
@@ -192,7 +218,8 @@ The same Capacitor plugin (`@capgo/native-purchases`) calls StoreKit 2 on iOS. R
 - [ ] Permissions: none required beyond Play Billing; speech uses OS TTS only
 - [ ] Offline: airplane-mode smoke test of all four tools (after an unlock or restore)
 - [ ] Stair disclaimer visible (NCC 2022 Housing Provisions 11.2 and AS 1657:2018 — soft hints, not a certificate)
-- [ ] Play: product `tradies_toolbox_setout_unlock` Active at $9.99 AUD; license testers saved; signed AAB on **Internal testing**; testers installed from the opt-in link (not sideload)
+- [ ] Play: signed AAB `com.chippystoolbox.app` uploaded to **Internal testing** (unblocks IAP); product `tradies_toolbox_setout_unlock` Active at $9.99 AUD; license testers saved; testers installed from the opt-in link (not sideload)
+- [ ] Play upload keystore + `UPLOAD_KEYSTORE.md` saved in a password manager (not in git)
 - [ ] Play: on-device Unlock sheet is a **test** purchase; Restore purchases returns the entitlement after reinstall
 - [ ] App Store Connect non-consumable `tradies_toolbox_setout_unlock` at $9.99 AUD; sandbox restore
 - [ ] Restore purchases uses store receipts (Play Billing / StoreKit), not only the local flag

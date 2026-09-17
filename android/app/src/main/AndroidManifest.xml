@@ -33,6 +33,8 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Play Billing: required in the first uploaded AAB so Console can create
+         tradies_toolbox_setout_unlock. Also merged from @capgo/native-purchases. -->
     <uses-permission android:name="com.android.vending.BILLING" />
 
     <queries>
