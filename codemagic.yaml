@@ -48,8 +48,8 @@ workflows:
         XCODE_WORKSPACE: App.xcworkspace
         XCODE_SCHEME: App
         # Numeric Apple ID: App Store Connect → Tradies Toolbox → App Information.
-        # Override in the Codemagic UI; leave empty until the app record exists.
-        APP_STORE_APPLE_ID: $APP_STORE_APPLE_ID
+        # Set this in the Codemagic UI (Application variables) once the app exists.
+        APP_STORE_APPLE_ID: ""
         # "true" = upload IPA to App Store Connect / TestFlight when ASC creds exist.
         # "false" = build the signed IPA only (artifact still downloadable).
         PUBLISH_TESTFLIGHT: "true"
@@ -96,13 +96,17 @@ workflows:
           set -euo pipefail
           cd "$CM_BUILD_DIR/ios/App"
           BUILD_NUM="${BUILD_NUMBER:-1}"
-          if [[ -n "${APP_STORE_APPLE_ID:-}" \
+          APPLE_ID="${APP_STORE_APPLE_ID:-}"
+          if [[ "$APPLE_ID" == \$APP_STORE_APPLE_ID ]]; then
+            APPLE_ID=""
+          fi
+          if [[ -n "$APPLE_ID" \
              && -n "${APP_STORE_CONNECT_KEY_IDENTIFIER:-}" \
              && -n "${APP_STORE_CONNECT_ISSUER_ID:-}" \
              && -n "${APP_STORE_CONNECT_PRIVATE_KEY:-}" ]]; then
-            LATEST="$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" || true)"
+            LATEST="$(app-store-connect get-latest-testflight-build-number "$APPLE_ID" || true)"
             if [[ -z "${LATEST:-}" ]]; then
-              LATEST="$(app-store-connect get-latest-app-store-build-number "$APP_STORE_APPLE_ID" || true)"
+              LATEST="$(app-store-connect get-latest-app-store-build-number "$APPLE_ID" || true)"
             fi
             if [[ -n "${LATEST:-}" ]]; then
               BUILD_NUM="$((LATEST + 1))"
@@ -154,5 +158,3 @@ workflows:
             fi
             echo "Uploading $IPA to App Store Connect (TestFlight processing)…"
             app-store-connect publish --path "$IPA"
-          when:
-            condition: env.PUBLISH_TESTFLIGHT == "true"
