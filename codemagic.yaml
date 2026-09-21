@@ -23,6 +23,14 @@ workflows:
     integrations:
       app_store_connect: tradies-toolbox-asc
 
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+          source: true
+
     environment:
       # Fetches Apple Distribution cert + App Store profile from
       # Codemagic -> Team settings -> Code signing identities

@@ -145,7 +145,7 @@ iOS project files can be generated on Linux; local **Simulator and Xcode Organiz
 
 ## iOS CI (Codemagic — no local Mac)
 
-Signed App Store IPA and TestFlight: **[docs/ios-codemagic.md](docs/ios-codemagic.md)**. Workflow `ios-app-store` in `codemagic.yaml` (Mac mini M2). `integrations.app_store_connect: tradies-toolbox-asc` plus yaml default `PUBLISH_TESTFLIGHT=true` upload the IPA when that Developer Portal key is present. Override `PUBLISH_TESTFLIGHT` as an Application variable to skip. Free 500 M2 min/month, then about $0.095/min. Secrets stay in the Codemagic UI. `APP_STORE_APPLE_ID` is `6814369706` (Personal accounts can keep it in the yaml if Application variable groups aren’t available).
+Signed App Store IPA and TestFlight: **[docs/ios-codemagic.md](docs/ios-codemagic.md)**. Workflow `ios-app-store` in `codemagic.yaml` (Mac mini M2) starts on **push to `main`**. `integrations.app_store_connect: tradies-toolbox-asc` plus yaml default `PUBLISH_TESTFLIGHT=true` upload the IPA when that Developer Portal key is present. Override `PUBLISH_TESTFLIGHT` as an Application variable to skip. Free 500 M2 min/month, then about $0.095/min. Secrets stay in the Codemagic UI. `APP_STORE_APPLE_ID` is `6814369706` (Personal accounts can keep it in the yaml if Application variable groups aren’t available).
 
 ## Google Play — upload AAB, then create IAP (do this now)
 

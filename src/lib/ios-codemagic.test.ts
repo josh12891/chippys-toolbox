@@ -15,6 +15,8 @@ describe("Codemagic iOS CI", () => {
     const yaml = read("codemagic.yaml");
     expect(yaml).toContain("ios-app-store:");
     expect(yaml).toContain("instance_type: mac_mini_m2");
+    expect(yaml).toMatch(/^    triggering:\n      events:\n        - push$/m);
+    expect(yaml).toContain("pattern: main");
     expect(yaml).toContain("npm ci");
     expect(yaml).toContain("npm run build");
     expect(yaml).toContain("npx cap sync ios");
@@ -57,6 +59,7 @@ describe("Codemagic iOS CI", () => {
   it("documents Codemagic signup, signing, TestFlight, and cost for Josh", () => {
     const docs = read("docs/ios-codemagic.md");
     const readme = read("README.md");
+    expect(docs).toContain("push to `main`");
     expect(docs).toContain("codemagic.io");
     expect(docs).toContain("josh12891/chippys-toolbox");
     expect(docs).toContain("com.josh12891.tradiestoolbox");

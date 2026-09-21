@@ -15,7 +15,7 @@ Build a **signed App Store IPA** for Tradies Toolbox on a cloud Mac, then option
 
 - **Free individual plan:** 500 Mac mini M2 minutes refilled every month.
 - **After that:** about **$0.095 / minute** on M2 ([Codemagic pricing](https://codemagic.io/pricing)).
-- A first Capacitor + Xcode archive is often **15–30 minutes**. Stay on the free bucket if you start builds **manually** (this workflow does not run on every git push).
+- A first Capacitor + Xcode archive is often **15–30 minutes**. `ios-app-store` starts on **push to `main`** (and can still be started from the Codemagic UI).
 
 ## 1. Sign up and connect GitHub
 
@@ -74,9 +74,9 @@ Same **Code signing identities** screens: upload a `.p12` distribution cert and 
 
 ## 5. Run the workflow
 
-1. Codemagic app page → **Start new build**.
-2. Workflow **iOS App Store IPA**. Branch: `main` (or this PR).
-3. Start. When it finishes, download **`App.ipa`** from artifacts.
+1. Push to **`main`** (Codemagic starts `ios-app-store` automatically), or open the Codemagic app page → **Start new build**.
+2. Workflow **iOS App Store IPA**. Branch: **`main`**.
+3. When it finishes, download **`App.ipa`** from artifacts (and TestFlight if `PUBLISH_TESTFLIGHT` and the ASC key are present).
 
 The Xcode project is `ios/App/App.xcworkspace`, scheme **App**. Web build is `npm ci` → `npm run build` → `npx cap sync ios`.
 
