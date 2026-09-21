@@ -1,6 +1,10 @@
 import { formatDeg, formatM, formatM3, formatMm, type LengthUnit } from "@/lib/format";
 import type { StairResult } from "@/lib/stairs";
-import type { RunningResult } from "@/lib/running";
+import {
+  runningDiagramDrawnMemberCount,
+  runningDiagramModel,
+  type RunningResult,
+} from "@/lib/running";
 import type { TriangleResult } from "@/lib/triangle";
 
 export function VolumeBanner({
@@ -518,20 +522,73 @@ export function StairDiagram({ result }: { result: StairResult | null }) {
   );
 }
 
+function runningMemberRect(
+  mark: { index: number; left: number },
+  xAt: (mm: number) => number,
+  memberW: number,
+  y: number,
+  showLabels: boolean,
+) {
+  return (
+    <g key={`member-${mark.index}`}>
+      <rect
+        x={xAt(mark.left)}
+        y={y - 36}
+        width={memberW}
+        height="46"
+        className="fill-ink/90"
+      />
+      {showLabels ? (
+        <text
+          x={xAt(mark.left) + memberW / 2}
+          y={y - 44}
+          textAnchor="middle"
+          className="fill-ink"
+          fontSize="9"
+          fontWeight={600}
+        >
+          {formatMm(mark.left)}
+        </text>
+      ) : null}
+    </g>
+  );
+}
+
 export function RunningDiagram({ result }: { result: RunningResult | null }) {
-  const marks = result?.marks ?? [];
+  const model = result ? runningDiagramModel(result) : null;
   const L = result?.overall ?? 3600;
   const T = result?.member ?? 90;
   const pad = 28;
   const y = 130;
   const w = 420 - pad * 2;
-  const scale = w / L;
-  const shown = marks.length > 18
-    ? [...marks.slice(0, 8), ...marks.slice(-8)]
-    : marks;
+  const spanStart = model?.spanStart ?? 0;
+  const spanEnd = model?.spanEnd ?? L;
+  const scale = w / Math.max(spanEnd - spanStart, 1);
+  const xAt = (mm: number) => pad + (mm - spanStart) * scale;
+  const memberW = Math.max(2, T * scale);
+  const drawnMembers = model ? runningDiagramDrawnMemberCount(model) : 0;
+  const showLabels = (model?.memberCount ?? 0) <= 12;
+  const noun =
+    model?.layout === "between"
+      ? model.memberCount === 1
+        ? "baluster"
+        : "balusters"
+      : model?.memberCount === 1
+        ? "stud"
+        : "studs";
+  const caption = model
+    ? model.layout === "between"
+      ? `${model.memberCount} ${noun} between posts · ${formatMm(result!.centres)} centres · ${formatMm(result!.gap)} gap`
+      : `${model.memberCount} ${noun} · ${formatMm(result!.centres)} centres · ${formatMm(result!.gap)} gap`
+    : null;
+  const ariaLabel = model
+    ? `Running measurements, ${model.memberCount} ${noun}${
+        model.layout === "between" ? " between posts" : ""
+      }, ${drawnMembers} drawn`
+    : "Running measurements";
 
   return (
-    <svg viewBox="0 0 420 220" className="h-auto w-full" role="img" aria-label="Running measurements">
+    <svg viewBox="0 0 420 220" className="h-auto w-full" role="img" aria-label={ariaLabel}>
       <rect width="420" height="220" className="fill-surface-2" rx="12" />
       <text
         x="16"
@@ -544,57 +601,54 @@ export function RunningDiagram({ result }: { result: RunningResult | null }) {
         RUNNING MARKS
       </text>
       <rect
-        x={pad}
+        x={xAt(0)}
         y={y}
-        width={w}
+        width={Math.max(0, L * scale)}
         height="10"
         className="fill-primary/80 stroke-ink"
         strokeWidth="1"
       />
-      {shown.map((m, i) => {
-        const x = pad + m.left * scale;
-        const mw = Math.max(2, T * scale);
-        const skip = marks.length > 18 && i === 8;
-        if (skip) {
-          return (
-            <text key="gap" x="210" y="100" textAnchor="middle" className="fill-muted" fontSize="11">
-              ···
-            </text>
-          );
-        }
+      {model?.endPosts.map((p, i) => {
+        const pw = Math.max(2, p.width * scale);
         return (
-          <g key={m.index}>
+          <g key={`post-${i}`}>
             <rect
-              x={x}
-              y={y - 36}
-              width={mw}
-              height="46"
-              className="fill-ink/90"
+              x={xAt(p.left)}
+              y={y - 48}
+              width={pw}
+              height="58"
+              className="fill-surface stroke-ink"
+              strokeWidth="1.4"
             />
-            {marks.length <= 12 ? (
-              <text
-                x={x + mw / 2}
-                y={y - 44}
-                textAnchor="middle"
-                className="fill-ink"
-                fontSize="9"
-                fontWeight={600}
-              >
-                {formatMm(m.left)}
-              </text>
-            ) : null}
+            <text
+              x={xAt(p.left) + pw / 2}
+              y={y - 54}
+              textAnchor="middle"
+              className="fill-muted"
+              fontSize="8"
+              fontWeight={600}
+            >
+              {pw >= 22 ? "POST" : "P"}
+            </text>
           </g>
         );
       })}
-      <text x={pad} y="200" className="fill-ink" fontSize="11" fontWeight={600}>
+      {model?.head.map((m) => runningMemberRect(m, xAt, memberW, y, showLabels))}
+      {model?.ellipsis ? (
+        <text key="ellipsis" x="210" y="100" textAnchor="middle" className="fill-muted" fontSize="11">
+          ···
+        </text>
+      ) : null}
+      {model?.tail.map((m) => runningMemberRect(m, xAt, memberW, y, showLabels))}
+      <text x={xAt(0)} y="200" className="fill-ink" fontSize="11" fontWeight={600}>
         0
       </text>
-      <text x={pad + w} y="200" textAnchor="end" className="fill-ink" fontSize="11" fontWeight={600}>
+      <text x={xAt(L)} y="200" textAnchor="end" className="fill-ink" fontSize="11" fontWeight={600}>
         {formatMm(L)}
       </text>
-      {result ? (
+      {caption ? (
         <text x="16" y="44" className="fill-muted" fontSize="12">
-          {`${result.members} members · ${formatMm(result.centres)} centres · ${formatMm(result.gap)} gap`}
+          {caption}
         </text>
       ) : (
         <text x="16" y="44" className="fill-muted" fontSize="12">

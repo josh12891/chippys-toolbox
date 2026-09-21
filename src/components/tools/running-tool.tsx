@@ -8,20 +8,13 @@ import { RunningDiagram } from "@/components/diagrams";
 import { formatMm, parseNum } from "@/lib/format";
 import {
   computeRunning,
+  markDistance,
   type RunningCountMode,
+  type RunningFace,
   type RunningLayout,
 } from "@/lib/running";
-import { speakLines, tradieNumber, type SpeakHandle } from "@/lib/speak";
-
-type Pace = "slow" | "site" | "quick";
-
-const PACE: Record<Pace, { gapMs: number; rate: number; label: string }> = {
-  slow: { gapMs: 3800, rate: 0.82, label: "Slow" },
-  site: { gapMs: 2400, rate: 0.92, label: "Site" },
-  quick: { gapMs: 1200, rate: 1.05, label: "Quick" },
-};
-
-type Face = "left" | "centre" | "right";
+import { RUNNING_PACE, runningSpeakLines, type RunningPace } from "@/lib/running-speak";
+import { speakLines, type SpeakHandle } from "@/lib/speak";
 
 export function RunningTool() {
   const [overall, setOverall] = useState("");
@@ -30,8 +23,8 @@ export function RunningTool() {
   const [countMode, setCountMode] = useState<RunningCountMode>("members");
   const [count, setCount] = useState("5");
   const [maxGap, setMaxGap] = useState("450");
-  const [face, setFace] = useState<Face>("left");
-  const [pace, setPace] = useState<Pace>("site");
+  const [face, setFace] = useState<RunningFace>("left");
+  const [pace, setPace] = useState<RunningPace>("normal");
   const [status, setStatus] = useState<"idle" | "speaking" | "paused">("idle");
   const [speakError, setSpeakError] = useState<string | null>(null);
   const handle = useRef<SpeakHandle | null>(null);
@@ -53,25 +46,10 @@ export function RunningTool() {
     });
   }, [count, countMode, layout, maxGap, member, overall]);
 
-  const markValue = (m: { left: number; centre: number; right: number }) =>
-    face === "left" ? m.left : face === "centre" ? m.centre : m.right;
-
-  const lines = useMemo(() => {
-    if (!result) return [];
-    const intro = [
-      "Running measurements.",
-      `Overall ${tradieNumber(result.overall)}.`,
-      `Member ${tradieNumber(result.member)}.`,
-      `${result.members} ${layout === "ends" ? "studs" : "balusters"}.`,
-      `Centres ${tradieNumber(result.centres)}.`,
-      `Clear gap ${tradieNumber(result.gap)}.`,
-      `Marks to the ${face} face, from the left.`,
-    ];
-    const marks = result.marks.map(
-      (m) => `Mark ${m.index}. ${tradieNumber(markValue(m))}.`,
-    );
-    return [...intro, ...marks, "That's the lot."];
-  }, [face, layout, result]);
+  const lines = useMemo(
+    () => (result ? runningSpeakLines(result.marks, face) : []),
+    [face, result],
+  );
 
   const stop = () => {
     signal.current.cancelled = true;
@@ -109,7 +87,7 @@ export function RunningTool() {
     setSpeakError(null);
     setStatus("speaking");
     const h = speakLines(lines, {
-      ...PACE[pace],
+      ...RUNNING_PACE[pace],
       signal: sig,
     });
     handle.current = h;
@@ -219,7 +197,9 @@ export function RunningTool() {
         <>
           <div className="mt-4 grid grid-cols-3 gap-3">
             <Card className="p-3">
-              <p className="text-xs text-muted">Members</p>
+              <p className="text-xs text-muted">
+                {layout === "between" ? "Balusters" : "Studs"}
+              </p>
               <p className="font-display text-2xl font-semibold tabular-nums">
                 {result.members}
               </p>
@@ -261,9 +241,9 @@ export function RunningTool() {
                 value={pace}
                 onChange={setPace}
                 options={[
-                  { value: "slow", label: "Slow" },
-                  { value: "site", label: "Site" },
-                  { value: "quick", label: "Quick" },
+                  { value: "slow", label: RUNNING_PACE.slow.label },
+                  { value: "normal", label: RUNNING_PACE.normal.label },
+                  { value: "quick", label: RUNNING_PACE.quick.label },
                 ]}
               />
               <div className="flex gap-2">
@@ -288,8 +268,9 @@ export function RunningTool() {
                 </Button>
               </div>
               <p className="text-xs text-muted">
-                Speaks millimetres in site talk, with a {PACE[pace].gapMs / 1000}s
-                gap between marks. Uses the device media volume.
+                Speaks millimetre values only, with a{" "}
+                {RUNNING_PACE[pace].gapMs / 1000}s gap between numbers. Uses the
+                device media volume.
               </p>
               {speakError ? (
                 <p className="text-sm text-danger" role="alert">
@@ -309,7 +290,7 @@ export function RunningTool() {
                 >
                   <span className="text-muted">{m.index}</span>
                   <span className="font-display text-xl font-semibold tabular-nums">
-                    {formatMm(markValue(m))}
+                    {formatMm(markDistance(m, face))}
                   </span>
                 </li>
               ))}

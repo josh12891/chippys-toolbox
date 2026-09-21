@@ -35,7 +35,7 @@ describe("Codemagic iOS CI", () => {
     expect(yaml).toMatch(/^    integrations:\n      app_store_connect: tradies-toolbox-asc$/m);
     expect(yaml).toContain('PUBLISH_TESTFLIGHT: "true"');
     expect(yaml).toContain('APP_STORE_APPLE_ID: "6814369706"');
-    expect(yaml).toContain("No App Store Connect API key in this environment — skip TestFlight.");
+    expect(yaml).toContain("No App Store Connect API key in this environment - skip TestFlight.");
     expect(yaml).toContain("app-store-connect publish --path");
     // Native publisher stays commented so the script path does not double-upload.
     expect(yaml).toMatch(/#\s*app_store_connect:\s*$/m);
