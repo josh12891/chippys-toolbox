@@ -24,7 +24,12 @@ describe("Codemagic iOS CI", () => {
     expect(yaml).toContain("xcode-project build-ipa");
     expect(yaml).toContain("XCODE_WORKSPACE: App.xcworkspace");
     expect(yaml).toContain("XCODE_SCHEME: App");
+    expect(yaml).toContain("agvtool new-version -all");
+    expect(yaml).toContain("get-latest-testflight-build-number");
     expect(yaml).toContain("xcode-project use-profiles");
+    const pbx = read("ios/App/App.xcodeproj/project.pbxproj");
+    expect(pbx).toContain("MARKETING_VERSION = 1.0.1;");
+    expect(pbx).not.toMatch(/MARKETING_VERSION = 1\.0;/);
     expect(yaml).toContain("app-store-connect fetch-signing-files");
     expect(yaml).toContain("app-store-connect publish");
   });
