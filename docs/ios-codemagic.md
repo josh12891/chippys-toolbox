@@ -91,6 +91,15 @@ Upload happens only when **all** of these are true:
 
 Then `app-store-connect publish` uploads the IPA. It appears under TestFlight after Apple processing (often 5–15 minutes). Internal testers can install; turn on external groups in App Store Connect if you need them.
 
+### Screenshots (TestFlight testers)
+
+The TestFlight binary **auto-unlocks** stair set-out and concrete when it detects a TestFlight install (`sandboxReceipt` and no `embedded.mobileprovision`). App Store customers still pay.
+
+1. Install the new TestFlight build (marketing version **1.0.2** after this lands on `main`).
+2. Open **Stair set-out** and **Concrete volume** — both already work. You do not need to tap Unlock or buy.
+3. About shows a TestFlight note and **Restore purchases** if you are checking the real sandbox IAP (`tradies_toolbox_setout_unlock`).
+4. App Store production builds are **not** unlocked this way. Complimentary unlock is not written to `tradies-toolbox.unlock.v1`.
+
 To skip upload: set Application variable `PUBLISH_TESTFLIGHT` to `false` in the Codemagic UI.
 
 Keep `publishing.app_store_connect` commented. The script publisher already uploads when the integration is present. Enabling the native publisher as well would upload twice.

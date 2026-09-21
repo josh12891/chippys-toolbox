@@ -16,6 +16,11 @@ import {
   type BillingKind,
 } from "@/lib/billing";
 import {
+  detectDistribution,
+  grantsComplimentaryUnlock,
+  type DistributionChannel,
+} from "@/lib/distribution";
+import {
   canUseTool,
   consumeFreeUse,
   emptyFreeUseCounts,
@@ -72,6 +77,9 @@ function getFreeUsesServerSnapshot() {
 
 type UnlockContextValue = {
   unlocked: boolean;
+  purchased: boolean;
+  complimentaryUnlock: boolean;
+  distributionChannel: DistributionChannel;
   freeUsesConsumed: FreeUseCounts;
   canCalculateTool: (id: ToolId) => boolean;
   consumeToolFreeUse: (id: PaidToolId) => boolean;
@@ -87,7 +95,10 @@ const UnlockContext = createContext<UnlockContextValue | null>(null);
 
 export function UnlockProvider({ children }: { children: ReactNode }) {
   const billing = useMemo(() => createUnlockBilling(), []);
-  const unlocked = useSyncExternalStore(subscribe, getUnlockSnapshot, getUnlockServerSnapshot);
+  const purchased = useSyncExternalStore(subscribe, getUnlockSnapshot, getUnlockServerSnapshot);
+  const [distributionChannel, setDistributionChannel] = useState<DistributionChannel>("unknown");
+  const complimentaryUnlock = grantsComplimentaryUnlock(distributionChannel);
+  const unlocked = purchased || complimentaryUnlock;
   const freeUsesKey = useSyncExternalStore(
     subscribe,
     getFreeUsesSnapshot,
@@ -97,6 +108,16 @@ export function UnlockProvider({ children }: { children: ReactNode }) {
   const [kind, setKind] = useState<BillingKind>("stub");
   const [priceLabel, setPriceLabel] = useState(UNLOCK_PRICE_LABEL);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void detectDistribution().then((snapshot) => {
+      if (!cancelled) setDistributionChannel(snapshot.channel);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -158,6 +179,9 @@ export function UnlockProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       unlocked,
+      purchased,
+      complimentaryUnlock,
+      distributionChannel,
       freeUsesConsumed,
       canCalculateTool,
       consumeToolFreeUse,
@@ -171,11 +195,14 @@ export function UnlockProvider({ children }: { children: ReactNode }) {
     [
       busy,
       canCalculateTool,
+      complimentaryUnlock,
       consumeToolFreeUse,
+      distributionChannel,
       footnote,
       freeUsesConsumed,
       kind,
       priceLabel,
+      purchased,
       purchaseUnlock,
       restorePurchases,
       unlocked,
