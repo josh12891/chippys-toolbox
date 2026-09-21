@@ -32,6 +32,9 @@ coverage
 *.keystore
 *.jks
 *.mobileprovision
+*.p12
+*.p8
+AuthKey_*.p8
 android/local.properties
 android/keystore.properties
 UPLOAD_KEYSTORE.md
