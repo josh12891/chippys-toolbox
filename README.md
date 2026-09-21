@@ -8,8 +8,8 @@ This is a **Capacitor + Vite + React + TypeScript SPA**. All web assets are bund
 | --- | --- |
 | Display name | Tradies Toolbox |
 | Package / app ID | `com.josh12891.tradiestoolbox` |
-| Seller / publisher | Joshua Pearson (Apple Individual) |
-| Support email | josh@pearsonindustries.com.au |
+| Seller / publisher | Australian Dynamics (Australia) |
+| Support email | australiancomsnetwork@gmail.com |
 | npm name | `chippys-toolbox` |
 | Audience | Australian tradies on the job |
 | Privacy policy (paste into Play + App Store Connect) | **https://josh12891.github.io/chippys-toolbox/privacy.html** |
@@ -54,7 +54,7 @@ Paste this exact URL into **Google Play Console** (App content → Privacy polic
 https://josh12891.github.io/chippys-toolbox/privacy.html
 ```
 
-That file is `docs/privacy.html` in this repo (synced from `public/privacy.html` on `npm test` / `npm run build`). Seller **Joshua Pearson**; support **josh@pearsonindustries.com.au**. The Capacitor app also ships `dist/privacy.html` for offline use (Home → Privacy, About, `/#/privacy`).
+That file is `docs/privacy.html` in this repo (synced from `public/privacy.html` on `npm test` / `npm run build`). Seller **Australian Dynamics**; support **australiancomsnetwork@gmail.com**. The Capacitor app also ships `dist/privacy.html` for offline use (Home → Privacy, About, `/#/privacy`).
 
 ### Enable GitHub Pages (once — do this before filling Play / App Store forms)
 
@@ -64,7 +64,7 @@ That file is `docs/privacy.html` in this repo (synced from `public/privacy.html`
 4. Wait 1–2 minutes, then open [https://josh12891.github.io/chippys-toolbox/privacy.html](https://josh12891.github.io/chippys-toolbox/privacy.html) — it must load (not 404) before you paste it into the stores.
 5. After this PR merges, keep Pages on **`main` / `/docs`**. To preview the URL *before* merge, you can temporarily point Pages at this PR branch (`cursor/store-path-iap-7a2f`) and `/docs`; switch back to `main` after merge. The public URL does not change.
 
-Do not switch Pages to GitHub Actions unless you intend to change that URL. Support: **josh@pearsonindustries.com.au**.
+Do not switch Pages to GitHub Actions unless you intend to change that URL. Support: **australiancomsnetwork@gmail.com**.
 
 ## Requirements
 
@@ -163,7 +163,7 @@ The app manifest (and `@capgo/native-purchases`) includes `com.android.vending.B
 2. [Play Console](https://play.google.com/console) → developer **Australian Dynamics** → app **Tradies Toolbox**.
 3. Confirm **App content → Privacy policy** is already **https://josh12891.github.io/chippys-toolbox/privacy.html**.
 4. **Test and release** → **Testing** → **Internal testing**.
-5. **Testers** tab → **Create email list** → add the Gmails that will install the app (up to 100) → Save. Feedback email: **josh@pearsonindustries.com.au**.
+5. **Testers** tab → **Create email list** → add the Gmails that will install the app (up to 100) → Save. Feedback email: **australiancomsnetwork@gmail.com**.
 6. **Releases** → **Create new release** → upload the signed **`.aab`** → Review → **Start rollout to Internal testing**.
 7. Copy the **Join on the web** / opt-in link. Testers open it while signed into that Gmail, tap **Become a tester**, then install **Tradies Toolbox** from the Play listing that link opens.
 
@@ -217,8 +217,8 @@ The same Capacitor plugin (`@capgo/native-purchases`) calls StoreKit 2 on iOS. R
 
 - [ ] App icons and splash generated (`npm run assets`, then `npx cap sync`)
 - [ ] Display name **Tradies Toolbox** on both stores
-- [ ] Seller / publisher **Joshua Pearson** (Apple Individual)
-- [ ] GitHub Pages: **Settings → Pages → Deploy from a branch → `main` / `/docs`**. Confirm **https://josh12891.github.io/chippys-toolbox/privacy.html** loads; paste that URL into Play and App Store Connect; support **josh@pearsonindustries.com.au**
+- [ ] Seller / publisher **Australian Dynamics** (Australia)
+- [ ] GitHub Pages: **Settings → Pages → Deploy from a branch → `main` / `/docs`**. Confirm **https://josh12891.github.io/chippys-toolbox/privacy.html** loads; paste that URL into Play and App Store Connect; support **australiancomsnetwork@gmail.com**
 - [ ] Screenshots: home, concrete, stairs, running, triangle
 - [ ] Age rating: tools/reference, no user-generated content
 - [ ] Permissions: none required beyond Play Billing; Play marks uses OS text-to-speech (native `TextToSpeech` on Android, Web Speech in the browser) on the media volume stream

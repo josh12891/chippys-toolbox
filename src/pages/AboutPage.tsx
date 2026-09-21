@@ -22,9 +22,9 @@ export function AboutPage() {
         the job.
       </p>
       <p className="mt-4 text-base leading-relaxed text-muted">
-        Tradies Toolbox is published by Joshua Pearson (Apple Individual). Support:{" "}
-        <a href="mailto:josh@pearsonindustries.com.au" className="font-semibold text-primary">
-          josh@pearsonindustries.com.au
+        Tradies Toolbox is published by Australian Dynamics (Australia). Support:{" "}
+        <a href="mailto:australiancomsnetwork@gmail.com" className="font-semibold text-primary">
+          australiancomsnetwork@gmail.com
         </a>
         . Privacy (offline copy):{" "}
         <a href="./privacy.html" className="font-semibold text-primary">
@@ -37,7 +37,7 @@ export function AboutPage() {
         .
       </p>
       <p className="mt-4 text-sm text-subtle">
-        Version 1.0.0 · Offline Capacitor app · Seller: Joshua Pearson (Apple Individual)
+        Version 1.0.0 · Offline Capacitor app · Seller: Australian Dynamics (Australia)
       </p>
     </AppShell>
   )
