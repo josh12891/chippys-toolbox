@@ -1,10 +1,37 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { AppShell } from "../components/app-shell.tsx"
+import { Button } from "../components/ui/button.tsx"
+import { useUnlock } from "../components/unlock-provider.tsx"
+import { TESTFLIGHT_SCREENSHOT_NOTE } from "../lib/distribution.ts"
 import { PUBLIC_PRIVACY_URL } from "../lib/unlock.ts"
 
 export function AboutPage() {
+  const { complimentaryUnlock, restorePurchases, busy } = useUnlock()
+  const [restoreStatus, setRestoreStatus] = useState<string | null>(null)
+
   return (
     <AppShell title="About" subtitle="On-site set-out, on the device." back>
+      {complimentaryUnlock ? (
+        <div className="mb-6 rounded-xl border border-border bg-surface p-4 shadow-sheet">
+          <p className="text-base leading-relaxed text-ink">{TESTFLIGHT_SCREENSHOT_NOTE}</p>
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-4 w-full"
+            disabled={busy}
+            onClick={() => {
+              void restorePurchases().then((result) => setRestoreStatus(result.message))
+            }}
+          >
+            {busy ? "Working…" : "Restore purchases"}
+          </Button>
+          {restoreStatus ? (
+            <p className="mt-3 text-sm text-muted" role="status">
+              {restoreStatus}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
       <p className="text-base leading-relaxed text-muted">
         Tradies Toolbox is an on-site set-out companion for Australian trades —
         concrete volumes, stair geometry, running measurements and a 90° triangle.

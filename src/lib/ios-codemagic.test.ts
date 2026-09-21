@@ -30,8 +30,9 @@ describe("Codemagic iOS CI", () => {
     expect(yaml).toContain("get-latest-testflight-build-number");
     expect(yaml).toContain("xcode-project use-profiles");
     const pbx = read("ios/App/App.xcodeproj/project.pbxproj");
-    expect(pbx).toContain("MARKETING_VERSION = 1.0.1;");
+    expect(pbx).toContain("MARKETING_VERSION = 1.0.2;");
     expect(pbx).not.toMatch(/MARKETING_VERSION = 1\.0;/);
+    expect(pbx).not.toMatch(/MARKETING_VERSION = 1\.0\.1;/);
     expect(yaml).toContain("app-store-connect fetch-signing-files");
     expect(yaml).toContain("app-store-connect publish");
   });
@@ -74,6 +75,8 @@ describe("Codemagic iOS CI", () => {
     expect(docs).toContain("Code signing identities");
     expect(docs).toContain("TestFlight");
     expect(docs).toContain("Never commit");
+    expect(docs).toContain("sandboxReceipt");
+    expect(docs).toContain("App Store customers still pay");
     expect(readme).toContain("docs/ios-codemagic.md");
     expect(readme).toContain("ios-app-store");
     expect(readme).toContain("codemagic.yaml");

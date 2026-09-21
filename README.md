@@ -40,6 +40,8 @@ Freemium, **no ads**, offline, metric.
 
 Native Android and iOS builds use **[@capgo/native-purchases](https://github.com/Cap-go/capacitor-native-purchases)** — Play Billing on Android and StoreKit 2 on iOS — for product id `tradies_toolbox_setout_unlock`. A successful purchase (or restore) caches an on-device flag (`localStorage` key `tradies-toolbox.unlock.v1`) so stairs and concrete stay available **offline**. Each paid tool also stores whether its free calculation was used (`tradies-toolbox.free-uses.v1`). **Restore purchases** queries the store account (required by Apple).
 
+**TestFlight only:** iOS TestFlight installs are detected at runtime (`appStoreReceiptURL` ends with `sandboxReceipt` and there is no `embedded.mobileprovision`). Paid tools are then unlocked **without writing the IAP flag**, so App Store customers and Google Play users keep the same freemium gate. Restore purchases still talks to StoreKit. We do **not** bake a Codemagic compile flag into the IPA — that binary can be promoted to the App Store.
+
 Home labels stairs/concrete **Try once** while that tool still has its free calculation. Opening the tool shows the real UI (not a blank paywall). After the first successful result, an unlock CTA appears; a second calculation stays gated until purchase. Unlocking either tool unlocks both.
 
 Web and debug builds keep the **local unlock stub** (same flag, not billed) so the paid UI can be reviewed without Play Console or App Store Connect. Production native builds do not use that stub when billing is available.
@@ -223,7 +225,7 @@ The same Capacitor plugin (`@capgo/native-purchases`) calls StoreKit 2 on iOS. R
 - [ ] Display name **Tradies Toolbox** on both stores
 - [ ] Seller / publisher **Australian Dynamics** (Australia)
 - [ ] GitHub Pages: **Settings → Pages → Deploy from a branch → `main` / `/docs`**. Confirm **https://josh12891.github.io/chippys-toolbox/privacy.html** loads; paste that URL into Play and App Store Connect; support **australiancomsnetwork@gmail.com**
-- [ ] Screenshots: home, concrete, stairs, running, triangle
+- [ ] Screenshots: home, concrete, stairs, running, triangle (TestFlight auto-unlocks stairs/concrete; App Store customers still see the paywall)
 - [ ] Age rating: tools/reference, no user-generated content
 - [ ] Permissions: none required beyond Play Billing; Play marks uses OS text-to-speech (native `TextToSpeech` on Android, Web Speech in the browser) on the media volume stream
 - [ ] Offline: airplane-mode smoke test of all four tools (after an unlock or restore)
