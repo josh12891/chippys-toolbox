@@ -82,7 +82,7 @@ describe("Play release AAB wiring", () => {
     expect(readme).toContain("targetSdk **36**");
     expect(readme).toContain("keystore.properties");
     expect(readme).toContain(
-      "https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.2-internal/tradies-toolbox-1.0.2.aab",
+      "https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.2-internal-play/tradies-toolbox-1.0.2.aab",
     );
   });
 });

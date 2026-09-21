@@ -157,9 +157,9 @@ The app manifest (and `@capgo/native-purchases`) includes `com.android.vending.B
 
 1. Download the signed AAB (no login wall on this public repo):
 
-   **https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.2-internal/tradies-toolbox-1.0.2.aab**
+   **https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.2-internal-play/tradies-toolbox-1.0.2.aab**
 
-   Tag `v1.0.2-internal` · asset **`tradies-toolbox-1.0.2.aab`** · package `com.josh12891.tradiestoolbox` · versionCode `3` · versionName `1.0.2` · targetSdk **36**. Includes the freemium one-free-calc paywall and native Android TTS Play-marks fix. Or rebuild with `npm run android:bundle`. The Play **upload keystore is not** on that release — keep it in a password manager only.
+   Tag `v1.0.2-internal-play` · asset **`tradies-toolbox-1.0.2.aab`** · package `com.josh12891.tradiestoolbox` · versionCode `3` · versionName `1.0.2` · targetSdk **36**. Signed with the original Play upload cert. **Do not** upload tag `v1.0.2-internal` — that asset was signed with the wrong key. Includes the freemium one-free-calc paywall and native Android TTS Play-marks fix. Or rebuild with `npm run android:bundle`. The Play **upload keystore is not** on that release — keep it in a password manager only.
 2. [Play Console](https://play.google.com/console) → developer **Australian Dynamics** → app **Tradies Toolbox**.
 3. Confirm **App content → Privacy policy** is already **https://josh12891.github.io/chippys-toolbox/privacy.html**.
 4. **Test and release** → **Testing** → **Internal testing**.
