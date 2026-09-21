@@ -108,7 +108,7 @@ Live reload against a packager is optional and **not** used for store binaries. 
 1. Install Android Studio with the Android SDK and a device/emulator.
 2. `npm run cap:android` (or open `android/` in Android Studio).
 3. Release signing uses `android/keystore.properties` + `android/upload-keystore.jks` (both gitignored). Copy `android/keystore.properties.example` and restore the upload key from your password manager — see **Release signing** below. Do **not** generate a second keystore if you already uploaded an AAB.
-4. Product flavour / version: bump `versionCode` / `versionName` in `android/app/build.gradle` for every Play update after `2` / `1.0.1`.
+4. Product flavour / version: bump `versionCode` / `versionName` in `android/app/build.gradle` for every Play update after `3` / `1.0.2`.
 5. Signed AAB from the CLI: `npm run android:bundle` (Gradle `bundleRelease`). In the IDE: *Build → Generate Signed App Bundle* with the same upload key.
 
 ## Release signing (Play upload key)
@@ -157,9 +157,9 @@ The app manifest (and `@capgo/native-purchases`) includes `com.android.vending.B
 
 1. Download the signed AAB (no login wall on this public repo):
 
-   **https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.0-internal-c/tradies-toolbox-1.0.aab**
+   **https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.2-internal-play/tradies-toolbox-1.0.2.aab**
 
-   Tag `v1.0.0-internal-c` · asset **`tradies-toolbox-1.0.aab`** · package `com.josh12891.tradiestoolbox` · versionCode `2` · versionName `1.0.1` · targetSdk **36**. Or rebuild with `npm run android:bundle`. The Play **upload keystore is not** on that release — keep it in a password manager only.
+   Tag `v1.0.2-internal-play` · asset **`tradies-toolbox-1.0.2.aab`** · package `com.josh12891.tradiestoolbox` · versionCode `3` · versionName `1.0.2` · targetSdk **36**. Signed with the original Play upload cert. **Do not** upload tag `v1.0.2-internal` — that asset was signed with the wrong key. Includes the freemium one-free-calc paywall and native Android TTS Play-marks fix. Or rebuild with `npm run android:bundle`. The Play **upload keystore is not** on that release — keep it in a password manager only.
 2. [Play Console](https://play.google.com/console) → developer **Australian Dynamics** → app **Tradies Toolbox**.
 3. Confirm **App content → Privacy policy** is already **https://josh12891.github.io/chippys-toolbox/privacy.html**.
 4. **Test and release** → **Testing** → **Internal testing**.

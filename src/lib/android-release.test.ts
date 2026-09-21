@@ -25,13 +25,13 @@ describe("Play release AAB wiring", () => {
     );
   });
 
-  it("targets API 36 and bumps versionCode past the failed-rollout AAB", () => {
+  it("targets API 36 and bumps versionCode past the previous internal AAB", () => {
     const variables = read("android/variables.gradle");
     const gradle = read("android/app/build.gradle");
     expect(variables).toMatch(/compileSdkVersion\s*=\s*36/);
     expect(variables).toMatch(/targetSdkVersion\s*=\s*36/);
-    expect(gradle).toContain("versionCode 2");
-    expect(gradle).toContain('versionName "1.0.1"');
+    expect(gradle).toContain("versionCode 3");
+    expect(gradle).toContain('versionName "1.0.2"');
   });
 
   it("declares Play Billing in the app manifest", () => {
@@ -82,7 +82,7 @@ describe("Play release AAB wiring", () => {
     expect(readme).toContain("targetSdk **36**");
     expect(readme).toContain("keystore.properties");
     expect(readme).toContain(
-      "https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.0-internal-c/tradies-toolbox-1.0.aab",
+      "https://github.com/josh12891/chippys-toolbox/releases/download/v1.0.2-internal-play/tradies-toolbox-1.0.2.aab",
     );
   });
 });
