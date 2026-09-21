@@ -128,6 +128,32 @@ describe("speakLines", () => {
     expect(spoken[0]).toBe("A");
     expect(spoken.at(-1)).toBe("B");
   });
+
+  it("pauses gapMs between distance-only lines", async () => {
+    vi.useFakeTimers();
+    const spoken: string[] = [];
+    const engine: SpeakEngine = {
+      speak: async (text) => {
+        spoken.push(text);
+      },
+      cancel: () => {},
+    };
+    try {
+      const handle = speakLines(["four fifty", "nine hundred"], {
+        gapMs: 1000,
+        engine,
+      });
+      await vi.advanceTimersByTimeAsync(0);
+      expect(spoken).toEqual(["four fifty"]);
+      await vi.advanceTimersByTimeAsync(999);
+      expect(spoken).toEqual(["four fifty"]);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(spoken).toEqual(["four fifty", "nine hundred"]);
+      await handle.done;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
 
 describe("web speech engine", () => {
