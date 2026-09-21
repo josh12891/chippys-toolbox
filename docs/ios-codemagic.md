@@ -8,6 +8,7 @@ Build a **signed App Store IPA** for Tradies Toolbox on a cloud Mac, then option
 | Machine | `mac_mini_m2` |
 | Bundle id | `com.josh12891.tradiestoolbox` |
 | IAP product | `tradies_toolbox_setout_unlock` (unchanged — StoreKit, not the CI file) |
+| App Store Apple ID | `6814369706` (Tradies Toolbox AU; set in yaml for Personal accounts) |
 | Secrets | Codemagic UI only. Never commit `.p8`, `.p12`, or passwords. |
 
 ## Cost
@@ -48,8 +49,10 @@ Needs an Apple Developer Program membership (already live for this app).
 | `APP_STORE_CONNECT_ISSUER_ID` | yes | Issuer ID |
 | `APP_STORE_CONNECT_KEY_IDENTIFIER` | yes | Key ID |
 | `APP_STORE_CONNECT_PRIVATE_KEY` | yes | Full `.p8` text |
-| `APP_STORE_APPLE_ID` | no | Numeric Apple ID from the app record → **App Information** |
+| `APP_STORE_APPLE_ID` | no | Numeric Apple ID from the app record → **App Information** (`6814369706` for Tradies Toolbox AU) |
 | `PUBLISH_TESTFLIGHT` | no | `true` (default in yaml) or `false` to skip upload |
+
+Personal Codemagic accounts may not have Application variable groups. In that case set `APP_STORE_APPLE_ID` in [`codemagic.yaml`](../codemagic.yaml) (already filled for Tradies Toolbox AU). Keep `.p8` / `.p12` / passwords in the Codemagic UI — never commit them.
 
 ## 4. Code signing (one of these)
 
@@ -94,11 +97,12 @@ Optional later: uncomment `publishing.app_store_connect` (`auth: integration`, `
 
 ## 7. App Store Connect app record
 
-Create **Tradies Toolbox** (`com.josh12891.tradiestoolbox`) in App Store Connect before the first upload. Privacy URL: `https://josh12891.github.io/chippys-toolbox/privacy.html`. IAP `tradies_toolbox_setout_unlock` is created in the app record (see README); CI does not create the product.
+Create **Tradies Toolbox** (`com.josh12891.tradiestoolbox`) in App Store Connect before the first upload. Apple ID **`6814369706`**. Privacy URL: `https://josh12891.github.io/chippys-toolbox/privacy.html`. IAP `tradies_toolbox_setout_unlock` is created in the app record (see README); CI does not create the product.
 
 ## Checklist
 
 - [ ] Codemagic free account, GitHub repo connected, yaml scanned
+- [ ] `APP_STORE_APPLE_ID` is `6814369706` in yaml (Personal accounts: set it there if Application variable groups aren’t available)
 - [ ] ASC API key downloaded once; stored in Codemagic + password manager
 - [ ] Distribution cert + App Store profile in Code signing identities
 - [ ] Manual **ios-app-store** build produces `App.ipa`

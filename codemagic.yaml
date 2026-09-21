@@ -9,7 +9,7 @@
 # Placeholders Josh fills in the Codemagic UI (or uncomments below):
 #   integrations.app_store_connect  → ASC API key name (e.g. tradies-toolbox-asc)
 #   environment.groups              → app_store_credentials (optional env-var path)
-#   APP_STORE_APPLE_ID              → numeric Apple ID from App Store Connect
+#   APP_STORE_APPLE_ID              → numeric Apple ID (set in yaml for Personal accounts)
 #   PUBLISH_TESTFLIGHT              → "true" to upload IPA to TestFlight when ASC is present
 
 workflows:
@@ -47,9 +47,10 @@ workflows:
         BUNDLE_ID: com.josh12891.tradiestoolbox
         XCODE_WORKSPACE: App.xcworkspace
         XCODE_SCHEME: App
-        # Numeric Apple ID: App Store Connect → Tradies Toolbox → App Information.
-        # Set this in the Codemagic UI (Application variables) once the app exists.
-        APP_STORE_APPLE_ID: ""
+        # Numeric Apple ID: App Store Connect → Tradies Toolbox (AU) → App Information.
+        # Prefer Application / Team variable groups when available. Personal accounts
+        # can set APP_STORE_APPLE_ID here if Application variable groups aren’t available.
+        APP_STORE_APPLE_ID: "6814369706"
         # "true" = upload IPA to App Store Connect / TestFlight when ASC creds exist.
         # "false" = build the signed IPA only (artifact still downloadable).
         PUBLISH_TESTFLIGHT: "true"
