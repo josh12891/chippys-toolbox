@@ -38,9 +38,9 @@ Needs an Apple Developer Program membership (already live for this app).
 **Team integrations (recommended):**
 
 1. Codemagic → **Team settings** → **Team integrations** → **Developer Portal** → **Manage keys**.
-2. **Add key**. Name it exactly **`tradies-toolbox-asc`** (this is the placeholder in `codemagic.yaml`).
+2. **Add key**. Name it exactly **`tradies-toolbox-asc`** (must match `integrations.app_store_connect` in `codemagic.yaml`).
 3. Paste Issuer ID + Key ID. Upload the `.p8`.
-4. Uncomment `integrations.app_store_connect: tradies-toolbox-asc` in `codemagic.yaml` when you want the native publisher later. The workflow already reads the same values if Codemagic injects `APP_STORE_CONNECT_*` into the environment.
+4. `ios-app-store` already sets `integrations.app_store_connect: tradies-toolbox-asc`. That injects `APP_STORE_CONNECT_*` so signing and TestFlight publish run when the key exists. Do not put the `.p8` in git.
 
 **Or Application / Team variables** (group name `app_store_credentials` if you uncomment `environment.groups` in the yaml):
 
@@ -50,7 +50,7 @@ Needs an Apple Developer Program membership (already live for this app).
 | `APP_STORE_CONNECT_KEY_IDENTIFIER` | yes | Key ID |
 | `APP_STORE_CONNECT_PRIVATE_KEY` | yes | Full `.p8` text |
 | `APP_STORE_APPLE_ID` | no | Numeric Apple ID from the app record → **App Information** (`6814369706` for Tradies Toolbox AU) |
-| `PUBLISH_TESTFLIGHT` | no | `true` (default in yaml) or `false` to skip upload |
+| `PUBLISH_TESTFLIGHT` | no | Application variable (optional). Yaml default is `true`. Set `false` in the Codemagic UI to skip upload |
 
 Personal Codemagic accounts may not have Application variable groups. In that case set `APP_STORE_APPLE_ID` in [`codemagic.yaml`](../codemagic.yaml) (already filled for Tradies Toolbox AU). Keep `.p8` / `.p12` / passwords in the Codemagic UI — never commit them.
 
@@ -86,14 +86,14 @@ Publishing **does not fail the build** when Apple credentials are missing. The s
 
 Upload happens only when **all** of these are true:
 
-- `PUBLISH_TESTFLIGHT` is `true` (yaml default)
-- `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_KEY_IDENTIFIER`, and `APP_STORE_CONNECT_PRIVATE_KEY` are set in the build environment
+- `PUBLISH_TESTFLIGHT` is `true` (yaml default; override with Application variable `PUBLISH_TESTFLIGHT` in the Codemagic UI)
+- The Developer Portal integration **`tradies-toolbox-asc`** is present (or `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_KEY_IDENTIFIER`, and `APP_STORE_CONNECT_PRIVATE_KEY` are set as Application secrets)
 
 Then `app-store-connect publish` uploads the IPA. It appears under TestFlight after Apple processing (often 5–15 minutes). Internal testers can install; turn on external groups in App Store Connect if you need them.
 
-To skip upload: set `PUBLISH_TESTFLIGHT` to `false` in the Codemagic UI.
+To skip upload: set Application variable `PUBLISH_TESTFLIGHT` to `false` in the Codemagic UI.
 
-Optional later: uncomment `publishing.app_store_connect` (`auth: integration`, `submit_to_testflight: true`) if you prefer Codemagic’s native publisher and have `integrations.app_store_connect` enabled. Do not enable both at once or you may upload twice.
+Keep `publishing.app_store_connect` commented. The script publisher already uploads when the integration is present. Enabling the native publisher as well would upload twice.
 
 ## 7. App Store Connect app record
 
@@ -103,8 +103,9 @@ Create **Tradies Toolbox** (`com.josh12891.tradiestoolbox`) in App Store Connect
 
 - [ ] Codemagic free account, GitHub repo connected, yaml scanned
 - [ ] `APP_STORE_APPLE_ID` is `6814369706` in yaml (Personal accounts: set it there if Application variable groups aren’t available)
-- [ ] ASC API key downloaded once; stored in Codemagic + password manager
+- [ ] Developer Portal key named exactly **`tradies-toolbox-asc`** (matches `integrations.app_store_connect`)
+- [ ] ASC API key downloaded once; stored in Codemagic + password manager (never git)
 - [ ] Distribution cert + App Store profile in Code signing identities
 - [ ] Manual **ios-app-store** build produces `App.ipa`
-- [ ] With ASC env set, IPA shows in TestFlight
+- [ ] With the integration present and `PUBLISH_TESTFLIGHT=true`, IPA shows in TestFlight
 - [ ] Nothing secret committed (`.p8` / `.p12` / `.mobileprovision` stay gitignored)

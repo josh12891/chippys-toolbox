@@ -32,8 +32,12 @@ describe("Codemagic iOS CI", () => {
   it("guards TestFlight and does not commit Apple secrets", () => {
     const yaml = read("codemagic.yaml");
     const gitignore = read(".gitignore");
-    expect(yaml).toContain("PUBLISH_TESTFLIGHT");
+    expect(yaml).toMatch(/^    integrations:\n      app_store_connect: tradies-toolbox-asc$/m);
+    expect(yaml).toContain('PUBLISH_TESTFLIGHT: "true"');
+    expect(yaml).toContain('APP_STORE_APPLE_ID: "6814369706"');
     expect(yaml).toContain("No App Store Connect API key in this environment — skip TestFlight.");
+    expect(yaml).toContain("app-store-connect publish --path");
+    // Native publisher stays commented so the script path does not double-upload.
     expect(yaml).toMatch(/#\s*app_store_connect:\s*$/m);
     expect(yaml).toMatch(/#\s*auth: integration/);
     expect(yaml).not.toMatch(/-----BEGIN PRIVATE KEY-----/);
@@ -56,11 +60,16 @@ describe("Codemagic iOS CI", () => {
     expect(docs).toContain("$0.095");
     expect(docs).toContain("App Store Connect API");
     expect(docs).toContain("tradies-toolbox-asc");
+    expect(docs).toContain("integrations.app_store_connect: tradies-toolbox-asc");
+    expect(docs).toContain("Application variable");
+    expect(docs).toContain("6814369706");
     expect(docs).toContain("Code signing identities");
     expect(docs).toContain("TestFlight");
     expect(docs).toContain("Never commit");
     expect(readme).toContain("docs/ios-codemagic.md");
     expect(readme).toContain("ios-app-store");
     expect(readme).toContain("codemagic.yaml");
+    expect(readme).toContain("tradies-toolbox-asc");
+    expect(readme).toContain("6814369706");
   });
 });

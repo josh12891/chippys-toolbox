@@ -145,7 +145,7 @@ iOS project files can be generated on Linux; local **Simulator and Xcode Organiz
 
 ## iOS CI (Codemagic — no local Mac)
 
-Signed App Store IPA and optional TestFlight: **[docs/ios-codemagic.md](docs/ios-codemagic.md)**. Workflow `ios-app-store` in `codemagic.yaml` (Mac mini M2). Free 500 M2 min/month, then about $0.095/min. Secrets stay in the Codemagic UI. Personal accounts can set `APP_STORE_APPLE_ID` in the yaml if Application variable groups aren’t available.
+Signed App Store IPA and TestFlight: **[docs/ios-codemagic.md](docs/ios-codemagic.md)**. Workflow `ios-app-store` in `codemagic.yaml` (Mac mini M2). `integrations.app_store_connect: tradies-toolbox-asc` plus yaml default `PUBLISH_TESTFLIGHT=true` upload the IPA when that Developer Portal key is present. Override `PUBLISH_TESTFLIGHT` as an Application variable to skip. Free 500 M2 min/month, then about $0.095/min. Secrets stay in the Codemagic UI. `APP_STORE_APPLE_ID` is `6814369706` (Personal accounts can keep it in the yaml if Application variable groups aren’t available).
 
 ## Google Play — upload AAB, then create IAP (do this now)
 
@@ -232,7 +232,7 @@ The same Capacitor plugin (`@capgo/native-purchases`) calls StoreKit 2 on iOS. R
 - [ ] Play upload keystore + `UPLOAD_KEYSTORE.md` saved in a password manager (not in git)
 - [ ] Play: on-device Unlock sheet is a **test** purchase; Restore purchases returns the entitlement after reinstall
 - [ ] App Store Connect non-consumable `tradies_toolbox_setout_unlock` at $9.99 AUD; sandbox restore
-- [ ] Codemagic `ios-app-store` IPA (optional TestFlight) — [docs/ios-codemagic.md](docs/ios-codemagic.md)
+- [ ] Codemagic `ios-app-store` IPA + TestFlight (`tradies-toolbox-asc`) — [docs/ios-codemagic.md](docs/ios-codemagic.md)
 - [ ] Restore purchases uses store receipts (Play Billing / StoreKit), not only the local flag
 - [ ] Signed Play AAB + App Store archive from the same `npm run build` commit
 
@@ -243,7 +243,7 @@ src/lib          concrete, stairs, running, triangle math + unlock/billing
 src/components   tool UIs, diagrams, unlock gate
 src/pages        home, About (Privacy opens public/privacy.html)
 docs/            GitHub Pages (privacy.html + index) + ios-codemagic.md
-codemagic.yaml   iOS App Store IPA on Mac mini M2 (TestFlight when ASC is set)
+codemagic.yaml   iOS App Store IPA on Mac mini M2 (TestFlight via tradies-toolbox-asc)
 public/privacy.html  source privacy policy (copied to dist/ and docs/)
 ios/TradiesToolbox.storekit  optional StoreKit config for Xcode
 prototype/       exact Grok calculator source used as the port origin

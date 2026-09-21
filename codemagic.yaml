@@ -6,11 +6,11 @@
 # Secrets stay in the Codemagic UI. Do not put .p8 / .p12 / passwords here.
 # Setup: docs/ios-codemagic.md
 #
-# Placeholders Josh fills in the Codemagic UI (or uncomments below):
-#   integrations.app_store_connect  → ASC API key name (e.g. tradies-toolbox-asc)
+# Codemagic UI / yaml (never commit .p8 / .p12 / passwords):
+#   integrations.app_store_connect  → Developer Portal key name: tradies-toolbox-asc
 #   environment.groups              → app_store_credentials (optional env-var path)
 #   APP_STORE_APPLE_ID              → numeric Apple ID (set in yaml for Personal accounts)
-#   PUBLISH_TESTFLIGHT              → "true" to upload IPA to TestFlight when ASC is present
+#   PUBLISH_TESTFLIGHT              → yaml default "true"; override as Application variable
 
 workflows:
   ios-app-store:
@@ -18,11 +18,10 @@ workflows:
     instance_type: mac_mini_m2
     max_build_duration: 90
 
-    # Uncomment after adding an App Store Connect API key in
-    # Codemagic → Team settings → Team integrations → Developer Portal.
-    # The name here must match the key name in the UI exactly.
-    # integrations:
-    #   app_store_connect: tradies-toolbox-asc
+    # App Store Connect API key — name must match Codemagic Developer Portal exactly.
+    # Team settings → Team integrations → Developer Portal → tradies-toolbox-asc
+    integrations:
+      app_store_connect: tradies-toolbox-asc
 
     environment:
       # Fetches Apple Distribution cert + App Store profile from
@@ -53,6 +52,7 @@ workflows:
         APP_STORE_APPLE_ID: "6814369706"
         # "true" = upload IPA to App Store Connect / TestFlight when ASC creds exist.
         # "false" = build the signed IPA only (artifact still downloadable).
+        # Override in Codemagic → Application variables (PUBLISH_TESTFLIGHT) if needed.
         PUBLISH_TESTFLIGHT: "true"
       node: 22
       xcode: latest
