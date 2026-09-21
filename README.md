@@ -70,7 +70,7 @@ Do not switch Pages to GitHub Actions unless you intend to change that URL. Supp
 
 - Node.js 20+
 - Android Studio (Ladybug or newer) for Play builds (minSdk 24, targetSdk 36)
-- Xcode 16+ on macOS for App Store builds (iOS 15+)
+- Xcode 16+ on macOS for local App Store builds (iOS 15+), **or** Codemagic Mac mini M2 CI — [docs/ios-codemagic.md](docs/ios-codemagic.md)
 
 ## Scripts
 
@@ -141,7 +141,11 @@ npm run android:bundle
 4. Display name: **Tradies Toolbox**.
 5. Archive and upload with Transporter / Organizer.
 
-iOS project files can be generated on Linux; **signing, Simulator and App Store upload require a Mac**. This repo does not run Xcode or `pod install` in CI. StoreKit 2 (via `@capgo/native-purchases`) needs **iOS 15+**; the Xcode project and Podfile are set to that deployment target.
+iOS project files can be generated on Linux; local **Simulator and Xcode Organizer still need a Mac**. StoreKit 2 (via `@capgo/native-purchases`) needs **iOS 15+**; the Xcode project and Podfile are set to that deployment target.
+
+## iOS CI (Codemagic — no local Mac)
+
+Signed App Store IPA and optional TestFlight: **[docs/ios-codemagic.md](docs/ios-codemagic.md)**. Workflow `ios-app-store` in `codemagic.yaml` (Mac mini M2). Free 500 M2 min/month, then about $0.095/min. Secrets stay in the Codemagic UI.
 
 ## Google Play — upload AAB, then create IAP (do this now)
 
@@ -200,7 +204,7 @@ Internal testers **are charged for IAP** unless they are also license testers. Y
 
 ## App Store Connect — StoreKit IAP (wired in this PR; archive still needs a Mac)
 
-Same plugin and product id: **`tradies_toolbox_setout_unlock`** · Non-Consumable · **$9.99 AUD**. Apple Developer is live; you can create the IAP now. CI still does not run Xcode.
+Same plugin and product id: **`tradies_toolbox_setout_unlock`** · Non-Consumable · **$9.99 AUD**. Apple Developer is live; you can create the IAP now. Archive/upload without a local Mac: Codemagic workflow `ios-app-store` — [docs/ios-codemagic.md](docs/ios-codemagic.md).
 
 1. In [App Store Connect](https://appstoreconnect.apple.com) accept the **Paid Applications Agreement** (Business → Agreements) so IAPs can be created.
 2. Open the **Tradies Toolbox** app record (`com.josh12891.tradiestoolbox`) → **Monetization** → **In-App Purchases** → **Create**.
@@ -211,7 +215,7 @@ Same plugin and product id: **`tradies_toolbox_setout_unlock`** · Non-Consumabl
 7. Create **Sandbox** Apple IDs (Users and Access → Sandbox) for device testing. Sign in with the sandbox account in Settings → App Store (not in iCloud) on a device.
 8. Optional local Xcode testing (Mac): add `ios/TradiesToolbox.storekit` as a StoreKit Configuration file to the App scheme (*Product → Scheme → Edit Scheme → Run → Options → StoreKit Configuration*). Product id inside that file is `tradies_toolbox_setout_unlock`.
 
-The same Capacitor plugin (`@capgo/native-purchases`) calls StoreKit 2 on iOS. Restore purchases is on the unlock screen (App Review requires it). You still need a Mac later to archive and upload; this tree is enough to wire the product id.
+The same Capacitor plugin (`@capgo/native-purchases`) calls StoreKit 2 on iOS. Restore purchases is on the unlock screen (App Review requires it). Use Codemagic for the signed IPA / TestFlight upload if you do not have a Mac.
 
 ## Store checklist
 
@@ -228,6 +232,7 @@ The same Capacitor plugin (`@capgo/native-purchases`) calls StoreKit 2 on iOS. R
 - [ ] Play upload keystore + `UPLOAD_KEYSTORE.md` saved in a password manager (not in git)
 - [ ] Play: on-device Unlock sheet is a **test** purchase; Restore purchases returns the entitlement after reinstall
 - [ ] App Store Connect non-consumable `tradies_toolbox_setout_unlock` at $9.99 AUD; sandbox restore
+- [ ] Codemagic `ios-app-store` IPA (optional TestFlight) — [docs/ios-codemagic.md](docs/ios-codemagic.md)
 - [ ] Restore purchases uses store receipts (Play Billing / StoreKit), not only the local flag
 - [ ] Signed Play AAB + App Store archive from the same `npm run build` commit
 
@@ -237,7 +242,8 @@ The same Capacitor plugin (`@capgo/native-purchases`) calls StoreKit 2 on iOS. R
 src/lib          concrete, stairs, running, triangle math + unlock/billing
 src/components   tool UIs, diagrams, unlock gate
 src/pages        home, About (Privacy opens public/privacy.html)
-docs/            GitHub Pages (privacy.html + index)
+docs/            GitHub Pages (privacy.html + index) + ios-codemagic.md
+codemagic.yaml   iOS App Store IPA on Mac mini M2 (TestFlight when ASC is set)
 public/privacy.html  source privacy policy (copied to dist/ and docs/)
 ios/TradiesToolbox.storekit  optional StoreKit config for Xcode
 prototype/       exact Grok calculator source used as the port origin
