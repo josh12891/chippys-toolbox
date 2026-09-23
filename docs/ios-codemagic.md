@@ -91,14 +91,14 @@ Upload happens only when **all** of these are true:
 
 Then `app-store-connect publish` uploads the IPA. It appears under TestFlight after Apple processing (often 5–15 minutes). Internal testers can install; turn on external groups in App Store Connect if you need them.
 
-### Screenshots (TestFlight testers)
+### App Review recording (TestFlight)
 
-The TestFlight binary **auto-unlocks** stair set-out and concrete when it detects a TestFlight install (`sandboxReceipt` and no `embedded.mobileprovision`). App Store customers still pay.
+TestFlight uses the same freemium gate as the App Store. Runtime detection still recognises a TestFlight install (`sandboxReceipt` and no `embedded.mobileprovision`), but complimentary unlock is **off**. App Store customers still pay, and TestFlight testers see the same paywall.
 
-1. Install the new TestFlight build (marketing version **1.0.2** after this lands on `main`).
-2. Open **Stair set-out** and **Concrete volume** — both already work. You do not need to tap Unlock or buy.
-3. About shows a TestFlight note and **Restore purchases** if you are checking the real sandbox IAP (`tradies_toolbox_setout_unlock`).
-4. App Store production builds are **not** unlocked this way. Complimentary unlock is not written to `tradies-toolbox.unlock.v1`.
+1. Install the new TestFlight build (marketing version **1.0.3** after this lands on `main`). Codemagic sets `CFBundleVersion` to the latest TestFlight build number plus one.
+2. Triangle and running measurements stay free.
+3. Stair set-out and concrete volume each allow one free calculation, then the paywall and IAP `tradies_toolbox_setout_unlock`. **Restore purchases** is on that unlock screen.
+4. Delete and reinstall does not skip the paywall. A real purchase or restore writes `tradies-toolbox.unlock.v1`. About does not say the paid tools are already unlocked.
 
 To skip upload: set Application variable `PUBLISH_TESTFLIGHT` to `false` in the Codemagic UI.
 

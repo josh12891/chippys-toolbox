@@ -1,6 +1,6 @@
 import { Capacitor, registerPlugin } from "@capacitor/core";
 
-/** Runtime install channel. Complimentary unlock is TestFlight only. */
+/** Runtime install channel. Complimentary unlock is off on every channel. */
 export type DistributionChannel = "testflight" | "app-store" | "ios-dev" | "play" | "web" | "unknown";
 
 export type NativeDistributionInspect = {
@@ -18,7 +18,7 @@ export type DistributionPluginApi = {
 
 /**
  * Native receipt / provisioning inspect. Implemented on iOS only.
- * Android and web never grant complimentary unlock.
+ * Classification is diagnostic. It does not unlock paid tools.
  */
 export const Distribution = registerPlugin<DistributionPluginApi>("Distribution", {
   web: {
@@ -28,9 +28,6 @@ export const Distribution = registerPlugin<DistributionPluginApi>("Distribution"
     }),
   },
 });
-
-export const TESTFLIGHT_SCREENSHOT_NOTE =
-  "TestFlight tester build — stair set-out and concrete are unlocked for App Store screenshots. You do not need to buy. Restore purchases still works if you are testing the real IAP. App Store customers still pay $9.99 AUD.";
 
 /**
  * TestFlight (and only TestFlight-shaped App Store distribution):
@@ -62,9 +59,15 @@ export function classifyDistribution(
   return classifyIosDistribution(native);
 }
 
-/** Complimentary unlock never applies to Play or App Store customers. */
-export function grantsComplimentaryUnlock(channel: DistributionChannel): boolean {
-  return channel === "testflight";
+/**
+ * Complimentary unlock is off on every channel, including TestFlight.
+ * TestFlight must show the same freemium gate as the App Store (one free
+ * stairs calculation, one free concrete calculation, then IAP) so App Review
+ * can record the paywall. The channel argument stays so a later build can
+ * opt a channel back in at this one site.
+ */
+export function grantsComplimentaryUnlock(_channel: DistributionChannel): boolean {
+  return false;
 }
 
 export function effectiveUnlocked(
