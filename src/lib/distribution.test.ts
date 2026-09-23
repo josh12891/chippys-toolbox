@@ -3,7 +3,6 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  TESTFLIGHT_SCREENSHOT_NOTE,
   classifyDistribution,
   classifyIosDistribution,
   detectDistribution,
@@ -54,7 +53,7 @@ describe("iOS distribution classification", () => {
     expect(classifyIosDistribution({})).toBe("unknown");
   });
 
-  it("never complimentary-unlocks Play, web, App Store, or Xcode builds", () => {
+  it("never complimentary-unlocks TestFlight, Play, web, App Store, or Xcode builds", () => {
     expect(classifyDistribution("android", null)).toBe("play");
     expect(classifyDistribution("web", null)).toBe("web");
     expect(grantsComplimentaryUnlock("play")).toBe(false);
@@ -62,16 +61,22 @@ describe("iOS distribution classification", () => {
     expect(grantsComplimentaryUnlock("app-store")).toBe(false);
     expect(grantsComplimentaryUnlock("ios-dev")).toBe(false);
     expect(grantsComplimentaryUnlock("unknown")).toBe(false);
-    expect(grantsComplimentaryUnlock("testflight")).toBe(true);
+    expect(grantsComplimentaryUnlock("testflight")).toBe(false);
   });
 });
 
-describe("complimentary TestFlight unlock", () => {
-  it("unlocks paid tools on TestFlight without a purchase flag", () => {
+describe("freemium unlock on TestFlight", () => {
+  it("keeps paid tools gated on TestFlight after the free calculation", () => {
+    const fresh = { stairs: 0, concrete: 0 };
     const consumed = { stairs: 1, concrete: 1 };
-    expect(effectiveUnlocked(false, "testflight")).toBe(true);
-    expect(canUseTool("stairs", effectiveUnlocked(false, "testflight"), consumed)).toBe(true);
-    expect(canUseTool("concrete", effectiveUnlocked(false, "testflight"), consumed)).toBe(true);
+    const unlocked = effectiveUnlocked(false, "testflight");
+    expect(unlocked).toBe(false);
+    expect(canUseTool("stairs", unlocked, fresh)).toBe(true);
+    expect(canUseTool("concrete", unlocked, fresh)).toBe(true);
+    expect(canUseTool("stairs", unlocked, consumed)).toBe(false);
+    expect(canUseTool("concrete", unlocked, consumed)).toBe(false);
+    expect(canUseTool("triangle", unlocked, consumed)).toBe(true);
+    expect(canUseTool("running", unlocked, consumed)).toBe(true);
   });
 
   it("keeps App Store and Play freemium gated after the free calculation", () => {
@@ -129,11 +134,15 @@ describe("complimentary TestFlight unlock", () => {
     });
   });
 
-  it("tells testers they do not need to buy, and keeps Restore available", () => {
-    expect(TESTFLIGHT_SCREENSHOT_NOTE).toMatch(/TestFlight tester build/i);
-    expect(TESTFLIGHT_SCREENSHOT_NOTE).toMatch(/do not need to buy/i);
-    expect(TESTFLIGHT_SCREENSHOT_NOTE).toMatch(/Restore purchases still works/i);
-    expect(TESTFLIGHT_SCREENSHOT_NOTE).toMatch(/\$9\.99 AUD/);
+  it("does not tell testers the paid tools are already unlocked", () => {
+    const about = read("src/pages/AboutPage.tsx");
+    const js = read("src/lib/distribution.ts");
+    expect(about).not.toMatch(/do not need to buy/i);
+    expect(about).not.toContain("TESTFLIGHT_SCREENSHOT_NOTE");
+    expect(about).not.toContain("complimentaryUnlock");
+    expect(js).not.toMatch(/do not need to buy/i);
+    expect(js).not.toContain("TESTFLIGHT_SCREENSHOT_NOTE");
+    expect(read("src/components/unlock-gate.tsx")).toContain("Restore purchases");
   });
 });
 
@@ -157,18 +166,19 @@ describe("iOS TestFlight plugin wiring", () => {
     expect(pbx).toContain("DistributionPlugin.swift");
     expect(pbx).toContain("BridgeViewController.swift");
     expect(js).toContain('registerPlugin<DistributionPluginApi>("Distribution"');
-    expect(read("src/pages/AboutPage.tsx")).toContain("complimentaryUnlock");
-    expect(read("src/pages/AboutPage.tsx")).toContain("TESTFLIGHT_SCREENSHOT_NOTE");
-    expect(read("src/pages/AboutPage.tsx")).toContain("restorePurchases");
+    expect(read("src/pages/AboutPage.tsx")).not.toContain("complimentaryUnlock");
+    expect(read("src/pages/AboutPage.tsx")).not.toContain("TESTFLIGHT_SCREENSHOT_NOTE");
     expect(read("src/components/unlock-provider.tsx")).toContain("purchased || complimentaryUnlock");
-    expect(read("README.md")).toContain("TestFlight only");
+    expect(read("src/components/unlock-provider.tsx")).toContain("grantsComplimentaryUnlock");
+    expect(read("README.md")).toContain("complimentary unlock is **off**");
     expect(read("README.md")).toContain("do **not** bake a Codemagic compile flag");
   });
 
   it("bumps the iOS marketing version so TestFlight can take a new binary", () => {
     const pbx = read("ios/App/App.xcodeproj/project.pbxproj");
-    expect(pbx).toContain("MARKETING_VERSION = 1.0.2;");
+    expect(pbx).toContain("MARKETING_VERSION = 1.0.3;");
     expect(pbx).not.toMatch(/MARKETING_VERSION = 1\.0;/);
     expect(pbx).not.toMatch(/MARKETING_VERSION = 1\.0\.1;/);
+    expect(pbx).not.toMatch(/MARKETING_VERSION = 1\.0\.2;/);
   });
 });
