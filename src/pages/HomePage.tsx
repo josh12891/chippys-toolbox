@@ -38,7 +38,7 @@ const TOOLS = [
 ];
 
 export function HomePage() {
-  const { unlocked, freeUsesConsumed } = useUnlock();
+  const { unlocked, freeUsesConsumed, priceLabel } = useUnlock();
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-4 py-8 sm:px-6">
@@ -56,7 +56,7 @@ export function HomePage() {
           Concrete, stairs, running measurements and a 90° triangle — built for the tape, not the office.
         </p>
         <p className="mt-2 max-w-md text-sm leading-normal text-subtle">
-          Triangle and running measurements are free. Stairs and concrete each include one free calculation; unlock both forever for $9.99 AUD.
+          Triangle and running measurements are free. Stairs and concrete each include one free calculation; unlock both forever for {priceLabel}.
         </p>
       </header>
 

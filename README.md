@@ -14,7 +14,7 @@ This is a **Capacitor + Vite + React + TypeScript SPA**. All web assets are bund
 | Audience | Australian tradies on the job |
 | Privacy policy (paste into Play + App Store Connect) | **https://josh12891.github.io/chippys-toolbox/privacy.html** |
 | IAP product id | `tradies_toolbox_setout_unlock` |
-| IAP price | **$9.99 AUD** one-time (not a subscription) |
+| IAP price | **A$9.99** one-time in Australia (not a subscription). The paywall shows the StoreKit / Play localized price. |
 
 ## Tools
 
@@ -35,7 +35,7 @@ Freemium, **no ads**, offline, metric.
 | --- | --- |
 | Free forever | Triangle calculator, running measurements |
 | One free calculation each | Stair set-out, concrete volume (independent one-shot on the device) |
-| Paid unlock | After a tool’s free calculation, the same **$9.99 AUD** one-time purchase unlocks **both** stairs and concrete forever |
+| Paid unlock | After a tool’s free calculation, the same one-time purchase (A$9.99 in Australia; the store’s localized price in the app) unlocks **both** stairs and concrete forever |
 | Product id | `tradies_toolbox_setout_unlock` (non-consumable / managed product) |
 
 Native Android and iOS builds use **[@capgo/native-purchases](https://github.com/Cap-go/capacitor-native-purchases)** — Play Billing on Android and StoreKit 2 on iOS — for product id `tradies_toolbox_setout_unlock`. A successful purchase (or restore) caches an on-device flag (`localStorage` key `tradies-toolbox.unlock.v1`) so stairs and concrete stay available **offline**. Each paid tool also stores whether its free calculation was used (`tradies-toolbox.free-uses.v1`). **Restore purchases** queries the store account (required by Apple).

@@ -1,8 +1,11 @@
 import { useEffect } from "react"
 import { AppShell } from "../components/app-shell.tsx"
+import { useUnlock } from "../components/unlock-provider.tsx"
 import { PUBLIC_PRIVACY_URL } from "../lib/unlock.ts"
 
 export function AboutPage() {
+  const { priceLabel } = useUnlock()
+
   return (
     <AppShell title="About" subtitle="On-site set-out, on the device." back>
       <p className="text-base leading-relaxed text-muted">
@@ -12,8 +15,8 @@ export function AboutPage() {
       </p>
       <p className="mt-4 text-base leading-relaxed text-muted">
         Triangle calculator and running measurements are free. Stair set-out and concrete
-        volume each include one free calculation on this device. Unlock both forever for
-        $9.99 AUD through Google Play or the App Store. No ads, offline, metric. Web and
+        volume each include one free calculation on this device. Unlock both forever for{" "}
+        {priceLabel} through Google Play or the App Store. No ads, offline, metric. Web and
         debug builds keep a local unlock stub.
       </p>
       <p className="mt-4 text-base leading-relaxed text-muted">
@@ -37,7 +40,7 @@ export function AboutPage() {
         .
       </p>
       <p className="mt-4 text-sm text-subtle">
-        Version 1.0.3 · Offline Capacitor app · Seller: Australian Dynamics (Australia)
+        Version 1.0.4 · Offline Capacitor app · Seller: Australian Dynamics (Australia)
       </p>
     </AppShell>
   )

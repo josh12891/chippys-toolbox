@@ -15,6 +15,7 @@ import {
   restoreUnlockFlag,
   toolRequiresUnlock,
   UNLOCK_PRICE_AUD,
+  UNLOCK_PRICE_LABEL,
   UNLOCK_STORAGE_KEY,
   writeFreeUsesConsumed,
   writeUnlockedFlag,
@@ -87,8 +88,10 @@ describe("unlock gate", () => {
     expect(paidToolHomeLabel("concrete", true, bothUsed)).toBeNull();
   });
 
-  it("is a $9.99 AUD one-time unlock", () => {
+  it("falls back to the Australian list price, never $5.99", () => {
     expect(UNLOCK_PRICE_AUD).toBe(9.99);
+    expect(UNLOCK_PRICE_LABEL).toBe("A$9.99");
+    expect(UNLOCK_PRICE_LABEL).not.toContain("5.99");
   });
 
   it("persists a local unlock flag", () => {

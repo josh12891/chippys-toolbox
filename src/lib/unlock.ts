@@ -9,7 +9,12 @@ export const FREE_USES_STORAGE_KEY = "tradies-toolbox.free-uses.v1";
 export const FREE_USES_PER_PAID_TOOL = 1;
 
 export const UNLOCK_PRICE_AUD = 9.99;
-export const UNLOCK_PRICE_LABEL = "$9.99 AUD";
+
+/**
+ * Shown only when StoreKit / Play has not returned a localized price.
+ * Matches the Australia price of `tradies_toolbox_setout_unlock`.
+ */
+export const UNLOCK_PRICE_LABEL = "A$9.99";
 
 /** Play Billing / StoreKit product type: managed one-time (non-consumable). */
 export const UNLOCK_PRODUCT_TYPE = "inapp";

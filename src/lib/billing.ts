@@ -20,9 +20,40 @@ export type BillingTransaction = {
 };
 
 export type BillingProduct = {
+  /** StoreKit `displayPrice` / Play formatted price, e.g. "A$9.99". */
   priceString?: string;
+  /** Numeric price in `currencyCode` units. Used only if `priceString` is missing. */
+  price?: number;
+  currencyCode?: string;
   title?: string;
 };
+
+/**
+ * Prefer the store's own localized price string so the paywall matches the
+ * purchase sheet. Fall back to the Australian list price only when the store
+ * has not loaded a price.
+ */
+export function formatStorePriceLabel(
+  product: BillingProduct | null | undefined,
+  fallback = UNLOCK_PRICE_LABEL,
+): string {
+  const fromStore = product?.priceString?.trim();
+  if (fromStore) return fromStore;
+
+  const price = product?.price;
+  const currency = product?.currencyCode?.trim();
+  if (typeof price === "number" && Number.isFinite(price) && currency) {
+    try {
+      return new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency,
+      }).format(price);
+    } catch {
+      // Unknown currency code — use the Australian list price.
+    }
+  }
+  return fallback;
+}
 
 export type NativeBillingClient = {
   isBillingSupported: () => Promise<{ isBillingSupported: boolean }>;
@@ -303,8 +334,7 @@ export function createUnlockBilling(
           productIdentifier: UNLOCK_PRODUCT_ID,
           productType: UNLOCK_PRODUCT_TYPE,
         });
-        const label = product.priceString?.trim();
-        return label || UNLOCK_PRICE_LABEL;
+        return formatStorePriceLabel(product);
       } catch {
         return UNLOCK_PRICE_LABEL;
       }
