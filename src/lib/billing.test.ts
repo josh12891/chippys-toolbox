@@ -9,6 +9,7 @@ import {
   isAlreadyOwnedPurchase,
   isUserCancelledPurchase,
   purchasesGrantUnlock,
+  sanitizeUnlockPriceLabel,
   shouldUseLocalUnlockStub,
   transactionGrantsUnlock,
   type NativeBillingClient,
@@ -307,6 +308,59 @@ describe("unlock billing adapter", () => {
     expect(formatStorePriceLabel(null)).toBe("A$9.99");
     expect(formatStorePriceLabel({ priceString: "A$9.99" })).not.toContain("5.99");
   });
+
+  it("replaces a stale 5.99 store label with A$9.99 and keeps 15.99", async () => {
+    expect(formatStorePriceLabel({ priceString: "$5.99", identifier: UNLOCK_PRODUCT_ID })).toBe(
+      "A$9.99",
+    );
+    expect(formatStorePriceLabel({ priceString: "A$5.99" })).toBe("A$9.99");
+    expect(formatStorePriceLabel({ priceString: "USD 5,99" })).toBe("A$9.99");
+    expect(sanitizeUnlockPriceLabel("$5.99")).toBe("A$9.99");
+    expect(sanitizeUnlockPriceLabel("$5.99")).not.toMatch(/(?:^|[^\d.])5[.,]99(?!\d)/);
+    expect(
+      formatStorePriceLabel({ price: 5.99, currencyCode: "USD", identifier: UNLOCK_PRODUCT_ID }),
+    ).toBe("A$9.99");
+    expect(formatStorePriceLabel({ priceString: "$15.99" })).toBe("$15.99");
+    expect(formatStorePriceLabel({ priceString: "A$15.99" })).toBe("A$15.99");
+    expect(formatStorePriceLabel({ priceString: "€8.99", identifier: UNLOCK_PRODUCT_ID })).toBe(
+      "€8.99",
+    );
+
+    const stale = createUnlockBilling({
+      client: fakeClient({
+        getProduct: async (options) => {
+          expect(options.productIdentifier).toBe(UNLOCK_PRODUCT_ID);
+          return {
+            product: {
+              identifier: UNLOCK_PRODUCT_ID,
+              priceString: "$5.99",
+              price: 5.99,
+              currencyCode: "USD",
+            },
+          };
+        },
+      }),
+      platform: { isNative: true, isDev: false, name: "ios" },
+      storage: memoryStorage(),
+    });
+    expect(await stale.getPriceLabel()).toBe("A$9.99");
+  });
+
+  it("ignores a priceString from a different product id", async () => {
+    const billing = createUnlockBilling({
+      client: fakeClient({
+        getProduct: async () => ({
+          product: { identifier: "some_other_sku", priceString: "€4.49" },
+        }),
+      }),
+      platform: { isNative: true, isDev: false, name: "ios" },
+      storage: memoryStorage(),
+    });
+    expect(await billing.getPriceLabel()).toBe("A$9.99");
+    expect(
+      formatStorePriceLabel({ identifier: UNLOCK_PRODUCT_ID, priceString: "€4.49" }),
+    ).toBe("€4.49");
+  });
 });
 
 describe("paywall price copy", () => {
@@ -316,17 +370,27 @@ describe("paywall price copy", () => {
     const files = [
       "src/pages/HomePage.tsx",
       "src/pages/AboutPage.tsx",
+      "src/pages/StairsPage.tsx",
+      "src/pages/ConcretePage.tsx",
       "src/components/unlock-gate.tsx",
+      "src/components/unlock-provider.tsx",
       "src/components/tools/stairs-tool.tsx",
       "src/components/tools/concrete-tool.tsx",
       "src/lib/unlock.ts",
       "public/privacy.html",
+      "docs/privacy.html",
+      "ios/App/App/Info.plist",
+      "ios/App/App/DistributionPlugin.swift",
+      "ios/TradiesToolbox.storekit",
     ];
     for (const rel of files) {
       const source = readFileSync(path.join(root, rel), "utf8");
       expect(source, rel).not.toMatch(/5\.99/);
       expect(source, rel).not.toContain("$9.99 AUD");
     }
+    const provider = readFileSync(path.join(root, "src/components/unlock-provider.tsx"), "utf8");
+    expect(provider).toContain("useState(UNLOCK_PRICE_LABEL)");
+    expect(provider).toContain("sanitizeUnlockPriceLabel(nextPrice)");
     expect(readFileSync(path.join(root, "src/pages/HomePage.tsx"), "utf8")).toContain(
       "priceLabel",
     );
@@ -336,5 +400,9 @@ describe("paywall price copy", () => {
     expect(readFileSync(path.join(root, "src/components/unlock-gate.tsx"), "utf8")).toContain(
       "Unlock both",
     );
+    const billingSource = readFileSync(path.join(root, "src/lib/billing.ts"), "utf8");
+    expect(billingSource).toContain("labelHasStaleSetoutPrice");
+    expect(billingSource).toContain("amountIsStaleSetoutPrice");
+    expect(billingSource).not.toContain("$9.99 AUD");
   });
 });

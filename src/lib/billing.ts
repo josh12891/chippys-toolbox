@@ -20,6 +20,8 @@ export type BillingTransaction = {
 };
 
 export type BillingProduct = {
+  /** Capgo product id. Must be `tradies_toolbox_setout_unlock` before we trust the price. */
+  identifier?: string;
   /** StoreKit `displayPrice` / Play formatted price, e.g. "A$9.99". */
   priceString?: string;
   /** Numeric price in `currencyCode` units. Used only if `priceString` is missing. */
@@ -29,25 +31,62 @@ export type BillingProduct = {
 };
 
 /**
- * Prefer the store's own localized price string so the paywall matches the
- * purchase sheet. Fall back to the Australian list price only when the store
- * has not loaded a price.
+ * Amount 5.99 only — not the trailing digits of 15.99 / 25.99.
+ * No lookbehind: the iOS deployment target is 15, and older WebKit rejects it.
+ *
+ * TestFlight 1.0.4 showed "$5.99" on Unlock set-out while the StoreKit purchase
+ * sheet for tradies_toolbox_setout_unlock showed "A$9.99". That 5.99 string is
+ * not in app source. Capgo maps priceString from Product.displayPrice, which can
+ * be the US base price before the Australian storefront is applied; purchase()
+ * then shows the App Store Connect Australia price. Drop the stale label so the
+ * paywall cannot disagree with that sheet. A real storefront whose price is
+ * exactly 5.99 is also replaced with A$9.99 — this product is listed at A$9.99.
+ */
+function labelHasStaleSetoutPrice(label: string): boolean {
+  return /(?:^|[^\d.])5[.,]99(?!\d)/.test(label);
+}
+
+function amountIsStaleSetoutPrice(price: number): boolean {
+  return Math.round(price * 100) === 599;
+}
+
+export function sanitizeUnlockPriceLabel(
+  label: string | null | undefined,
+  fallback = UNLOCK_PRICE_LABEL,
+): string {
+  const trimmed = label?.trim() ?? "";
+  if (!trimmed || labelHasStaleSetoutPrice(trimmed)) return fallback;
+  return trimmed;
+}
+
+/**
+ * Prefer Capgo `priceString` for `tradies_toolbox_setout_unlock` so the paywall
+ * matches the purchase sheet. Fall back to `A$9.99` when the store has not
+ * loaded a price, the product id is wrong, or the label is the stale `5.99`.
  */
 export function formatStorePriceLabel(
   product: BillingProduct | null | undefined,
   fallback = UNLOCK_PRICE_LABEL,
 ): string {
-  const fromStore = product?.priceString?.trim();
+  const identifier = product?.identifier?.trim();
+  if (identifier && identifier !== UNLOCK_PRODUCT_ID) return fallback;
+
+  const fromStore = sanitizeUnlockPriceLabel(product?.priceString, "");
   if (fromStore) return fromStore;
 
   const price = product?.price;
   const currency = product?.currencyCode?.trim();
+  if (typeof price === "number" && Number.isFinite(price) && amountIsStaleSetoutPrice(price)) {
+    return fallback;
+  }
   if (typeof price === "number" && Number.isFinite(price) && currency) {
     try {
-      return new Intl.NumberFormat(undefined, {
+      const formatted = new Intl.NumberFormat(undefined, {
         style: "currency",
         currency,
       }).format(price);
+      const safe = sanitizeUnlockPriceLabel(formatted, "");
+      if (safe) return safe;
     } catch {
       // Unknown currency code — use the Australian list price.
     }
