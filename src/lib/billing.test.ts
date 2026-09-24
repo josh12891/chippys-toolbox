@@ -1,7 +1,11 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   billingFootnote,
   createUnlockBilling,
+  formatStorePriceLabel,
   isAlreadyOwnedPurchase,
   isUserCancelledPurchase,
   purchasesGrantUnlock,
@@ -260,15 +264,77 @@ describe("unlock billing adapter", () => {
   });
 
   it("uses the store price string when the product is listed", async () => {
+    let requestedId = "";
     const billing = createUnlockBilling({
       client: fakeClient({
-        getProduct: async () => ({ product: { priceString: "A$9.99" } }),
+        getProduct: async (options) => {
+          requestedId = options.productIdentifier;
+          return { product: { priceString: "A$9.99" } };
+        },
       }),
-      platform: { isNative: true, isDev: false, name: "android" },
+      platform: { isNative: true, isDev: false, name: "ios" },
       storage: memoryStorage(),
     });
     expect(await billing.getPriceLabel()).toBe("A$9.99");
+    expect(requestedId).toBe(UNLOCK_PRODUCT_ID);
     expect(billingFootnote("store", "android")).toMatch(/Google Play/i);
     expect(billingFootnote("store", "ios")).toMatch(/App Store/i);
+  });
+
+  it("keeps a non-AUD StoreKit price string so the button matches that storefront", async () => {
+    const billing = createUnlockBilling({
+      client: fakeClient({
+        getProduct: async () => ({ product: { priceString: "$9.99" } }),
+      }),
+      platform: { isNative: true, isDev: false, name: "ios" },
+      storage: memoryStorage(),
+    });
+    expect(await billing.getPriceLabel()).toBe("$9.99");
+  });
+
+  it("falls back to A$9.99 when StoreKit does not return a price", async () => {
+    const billing = createUnlockBilling({
+      client: fakeClient({
+        getProduct: async () => {
+          throw new Error("Product not found");
+        },
+      }),
+      platform: { isNative: true, isDev: false, name: "ios" },
+      storage: memoryStorage(),
+    });
+    expect(await billing.getPriceLabel()).toBe("A$9.99");
+    expect(formatStorePriceLabel({ priceString: "  " })).toBe("A$9.99");
+    expect(formatStorePriceLabel(null)).toBe("A$9.99");
+    expect(formatStorePriceLabel({ priceString: "A$9.99" })).not.toContain("5.99");
+  });
+});
+
+describe("paywall price copy", () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+
+  it("does not hardcode $5.99 on unlock surfaces", () => {
+    const files = [
+      "src/pages/HomePage.tsx",
+      "src/pages/AboutPage.tsx",
+      "src/components/unlock-gate.tsx",
+      "src/components/tools/stairs-tool.tsx",
+      "src/components/tools/concrete-tool.tsx",
+      "src/lib/unlock.ts",
+      "public/privacy.html",
+    ];
+    for (const rel of files) {
+      const source = readFileSync(path.join(root, rel), "utf8");
+      expect(source, rel).not.toMatch(/5\.99/);
+      expect(source, rel).not.toContain("$9.99 AUD");
+    }
+    expect(readFileSync(path.join(root, "src/pages/HomePage.tsx"), "utf8")).toContain(
+      "priceLabel",
+    );
+    expect(readFileSync(path.join(root, "src/pages/AboutPage.tsx"), "utf8")).toContain(
+      "priceLabel",
+    );
+    expect(readFileSync(path.join(root, "src/components/unlock-gate.tsx"), "utf8")).toContain(
+      "Unlock both",
+    );
   });
 });

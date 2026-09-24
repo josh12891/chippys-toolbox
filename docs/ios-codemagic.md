@@ -95,7 +95,7 @@ Then `app-store-connect publish` uploads the IPA. It appears under TestFlight af
 
 TestFlight uses the same freemium gate as the App Store. Runtime detection still recognises a TestFlight install (`sandboxReceipt` and no `embedded.mobileprovision`), but complimentary unlock is **off**. App Store customers still pay, and TestFlight testers see the same paywall.
 
-1. Install the new TestFlight build (marketing version **1.0.3** after this lands on `main`). Codemagic sets `CFBundleVersion` to the latest TestFlight build number plus one.
+1. Install the new TestFlight build (marketing version **1.0.4** after this lands on `main`). Codemagic sets `CFBundleVersion` to the latest TestFlight build number plus one.
 2. Triangle and running measurements stay free.
 3. Stair set-out and concrete volume each allow one free calculation, then the paywall and IAP `tradies_toolbox_setout_unlock`. **Restore purchases** is on that unlock screen.
 4. Delete and reinstall does not skip the paywall. A real purchase or restore writes `tradies-toolbox.unlock.v1`. About does not say the paid tools are already unlocked.
