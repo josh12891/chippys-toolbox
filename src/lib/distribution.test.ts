@@ -176,10 +176,12 @@ describe("iOS TestFlight plugin wiring", () => {
 
   it("bumps the iOS marketing version so TestFlight can take a new binary", () => {
     const pbx = read("ios/App/App.xcodeproj/project.pbxproj");
-    expect(pbx).toContain("MARKETING_VERSION = 1.0.4;");
+    expect(pbx).toContain("MARKETING_VERSION = 1.0.5;");
     expect(pbx).not.toMatch(/MARKETING_VERSION = 1\.0;/);
     expect(pbx).not.toMatch(/MARKETING_VERSION = 1\.0\.1;/);
     expect(pbx).not.toMatch(/MARKETING_VERSION = 1\.0\.2;/);
     expect(pbx).not.toMatch(/MARKETING_VERSION = 1\.0\.3;/);
+    expect(pbx).not.toMatch(/MARKETING_VERSION = 1\.0\.4;/);
+    expect(read("src/pages/AboutPage.tsx")).toContain("Version 1.0.5");
   });
 });

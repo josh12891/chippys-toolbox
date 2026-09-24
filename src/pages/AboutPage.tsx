@@ -40,7 +40,7 @@ export function AboutPage() {
         .
       </p>
       <p className="mt-4 text-sm text-subtle">
-        Version 1.0.4 · Offline Capacitor app · Seller: Australian Dynamics (Australia)
+        Version 1.0.5 · Offline Capacitor app · Seller: Australian Dynamics (Australia)
       </p>
     </AppShell>
   )

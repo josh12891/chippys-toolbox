@@ -12,6 +12,7 @@ import {
   billingFootnote,
   createUnlockBilling,
   listenForUnlockTransactions,
+  sanitizeUnlockPriceLabel,
   type BillingActionResult,
   type BillingKind,
 } from "@/lib/billing";
@@ -106,6 +107,7 @@ export function UnlockProvider({ children }: { children: ReactNode }) {
   );
   const freeUsesConsumed = useMemo(() => parseFreeUsesSnapshot(freeUsesKey), [freeUsesKey]);
   const [kind, setKind] = useState<BillingKind>("stub");
+  // Before StoreKit loads, show the Australian list price. Do not seed another amount.
   const [priceLabel, setPriceLabel] = useState(UNLOCK_PRICE_LABEL);
   const [busy, setBusy] = useState(false);
 
@@ -132,7 +134,7 @@ export function UnlockProvider({ children }: { children: ReactNode }) {
         return;
       }
       setKind(nextKind);
-      setPriceLabel(nextPrice);
+      setPriceLabel(sanitizeUnlockPriceLabel(nextPrice));
       emit();
     })();
     return () => {
